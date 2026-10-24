@@ -10,7 +10,11 @@
 @keyframes ec-title-accent{from{color:#ffffff}to{color:var(--lime)}}
 @keyframes ec-stage-opacity{from{opacity:0}to{opacity:1}}
 @keyframes ec-nav-in{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
-html.ec-intro-locked,html.ec-intro-locked body{overflow:hidden!important;overscroll-behavior:none!important}
+/* Reserve the desktop scrollbar track even while scrolling is locked.
+   Without this, the viewport widens during the intro and jumps left on unlock. */
+html{scrollbar-gutter:stable}
+html.ec-intro-locked{overflow-y:hidden!important;overscroll-behavior:none!important}
+html.ec-intro-locked body{overflow:hidden!important;overscroll-behavior:none!important}
 html.ec-intro-locked body>*{pointer-events:none!important}
 html.ec-intro-locked body{touch-action:none!important}
 body.ec-opening{background:#143f37}
