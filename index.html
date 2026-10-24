@@ -9,6 +9,10 @@
 @keyframes ec-stage-in{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ec-nav-in{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
 body.ec-opening{background:#143f37}
+html.ec-intro-locked,html.ec-intro-locked body{overflow:hidden!important;overscroll-behavior:none!important}
+html.ec-intro-locked body>*{pointer-events:none!important}
+html.ec-intro-locked body{touch-action:none!important}
+
 body.ec-opening::before{content:"";position:fixed;inset:0;background:#143f37;z-index:35;pointer-events:none;opacity:1;transition:opacity .6s ease}
 body.ec-opening.ec-background-clear::before{opacity:0}
 body.ec-opening .site-header{position:relative;z-index:55;opacity:0;transform:translateY(-100%);pointer-events:none}
@@ -195,6 +199,15 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
  const hero=document.querySelector('#app .hero');
  if(!hero)return;
  body.classList.add('ec-opening');
+ const root=document.documentElement;
+ root.classList.add('ec-intro-locked');
+ const previouslyFocused=document.activeElement;
+ const focusGuard=e=>{if(!root.classList.contains('ec-intro-locked'))return;if(e.key==='Tab'||e.key===' '||e.key==='ArrowDown'||e.key==='ArrowUp'||e.key==='PageDown'||e.key==='PageUp'||e.key==='Home'||e.key==='End'){e.preventDefault();e.stopImmediatePropagation()}};
+ const wheelGuard=e=>{if(root.classList.contains('ec-intro-locked'))e.preventDefault()};
+ document.addEventListener('keydown',focusGuard,true);
+ document.addEventListener('wheel',wheelGuard,{passive:false,capture:true});
+ document.addEventListener('touchmove',wheelGuard,{passive:false,capture:true});
+ const scrollX=window.scrollX,scrollY=window.scrollY;
  let completed=false;
  const timers=[];
  const after=(ms,fn)=>timers.push(setTimeout(fn,ms));
@@ -202,6 +215,11 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
   if(completed)return;completed=true;timers.forEach(clearTimeout);
   try{sessionStorage.setItem('ec-intro-seen','1')}catch(e){}
   body.classList.remove('ec-opening','ec-nav-visible','ec-copy-visible','ec-panel-visible','ec-buttons-visible','ec-rest-visible','ec-background-clear');
+  root.classList.remove('ec-intro-locked');
+  document.removeEventListener('keydown',focusGuard,true);
+  document.removeEventListener('wheel',wheelGuard,true);
+  document.removeEventListener('touchmove',wheelGuard,true);
+  if(previouslyFocused instanceof HTMLElement&&previouslyFocused!==document.body&&document.contains(previouslyFocused))previouslyFocused.blur();
  }
  // The real homepage heading appears in its final position immediately.
  after(2200,()=>body.classList.add('ec-nav-visible'));
@@ -210,7 +228,7 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
  after(5400,()=>body.classList.add('ec-buttons-visible'));
  after(6250,()=>body.classList.add('ec-background-clear','ec-rest-visible'));
  after(7700,finish);
- window.addEventListener('keydown',e=>{if(e.key==='Escape')finish()},{once:true});
+ // The introduction unlocks automatically when the final stage finishes.
 })();
 
 </script><script>
