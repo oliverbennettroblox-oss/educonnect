@@ -20,6 +20,10 @@ body.ec-opening.ec-nav-visible .site-header{animation:ec-nav-in 1.05s cubic-bezi
 body.ec-opening #app .hero{position:relative;z-index:45;background:#143f37}
 body.ec-opening #app .hero h1{visibility:visible;animation:ec-title-real 1.9s cubic-bezier(.22,1,.36,1) both!important}
 body.ec-opening #app .hero h1 em{display:inline}
+/* Give the descending letters (especially the g in together) room during the headline reveal. */
+body.ec-opening #app .hero h1{line-height:1.22!important;padding-bottom:.14em;margin-bottom:calc(21px - .14em);overflow:visible!important}
+body.ec-opening #app .hero h1 em{line-height:inherit;overflow:visible!important}
+
 body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:hidden;opacity:0}
 body.ec-opening.ec-copy-visible #app .hero p{visibility:visible;animation:ec-stage-in 1.05s cubic-bezier(.22,1,.36,1) both}
 body.ec-opening.ec-panel-visible #app .hero .hero-panel{visibility:visible;animation:ec-stage-in 1.25s cubic-bezier(.22,1,.36,1) both}
