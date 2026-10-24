@@ -4,43 +4,27 @@
 
 /* Home opening sequence: title, real navigation, supporting copy, actions, content */
 
-/* Intro takes place inside the REAL homepage, no duplicate headline. */
-@keyframes ec-title-real{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(16px)}to{opacity:1;clip-path:inset(0 0 0 0);transform:translateY(0)}}
-@keyframes ec-stage-in{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+/* The intro reveals final-layout elements without changing their geometry. */
+@keyframes ec-title-real{from{opacity:0;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+@keyframes ec-stage-opacity{from{opacity:0}to{opacity:1}}
 @keyframes ec-nav-in{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
-/* Preserve final animation state without replaying entrance effects at unlock. */
-body.ec-intro-complete #app .hero h1,
-body.ec-intro-complete #app .hero p,
-body.ec-intro-complete #app .hero .buttons,
-body.ec-intro-complete #app .hero .hero-panel,
-body.ec-intro-complete #app .strip,
-body.ec-intro-complete #app .hero~*,
-body.ec-intro-complete .footer,
-body.ec-intro-complete .site-header,
-body.ec-intro-complete #app .ec-reveal,
-body.ec-intro-complete #app.ec-page-in{animation:none!important;visibility:visible!important;opacity:1!important}
-body.ec-intro-complete .site-header{transform:none!important}
-body.ec-opening{background:#143f37}
 html.ec-intro-locked,html.ec-intro-locked body{overflow:hidden!important;overscroll-behavior:none!important}
 html.ec-intro-locked body>*{pointer-events:none!important}
 html.ec-intro-locked body{touch-action:none!important}
-
-body.ec-opening::before{content:"";position:fixed;inset:0;background:#143f37;z-index:35;pointer-events:none;opacity:1;transition:opacity .6s ease}
+body.ec-opening{background:#143f37}
+body.ec-opening::before{content:"";position:fixed;inset:0;background:#143f37;z-index:35;pointer-events:none;opacity:1;transition:opacity 1.15s ease}
 body.ec-opening.ec-background-clear::before{opacity:0}
-body.ec-opening .site-header{position:relative;z-index:55;opacity:0;transform:translateY(-100%);pointer-events:none}
-body.ec-opening.ec-nav-visible .site-header{animation:ec-nav-in 1.05s cubic-bezier(.22,1,.36,1) both;pointer-events:auto}
-body.ec-opening #app .hero{position:relative;z-index:45;background:#143f37}
-body.ec-opening #app .hero h1{visibility:visible;animation:ec-title-real 1.9s cubic-bezier(.22,1,.36,1) both!important}
-body.ec-opening #app .hero h1 em{display:inline}
-/* Give the descending letters (especially the g in together) room during the headline reveal. */
-body.ec-opening #app .hero h1{line-height:1.22!important;padding-bottom:.14em;margin-bottom:calc(21px - .14em);overflow:visible!important}
-body.ec-opening #app .hero h1 em{line-height:inherit;overflow:visible!important}
-
+body.ec-opening .site-header{z-index:55;opacity:0;transform:translateY(-100%)}
+body.ec-opening.ec-nav-visible .site-header{animation:ec-nav-in 1.05s cubic-bezier(.22,1,.36,1) both}
+body.ec-opening #app .hero{position:relative;z-index:45}
+body.ec-opening #app .hero h1{animation:ec-title-real 1.9s cubic-bezier(.22,1,.36,1) both!important}
 body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:hidden;opacity:0}
-body.ec-opening.ec-copy-visible #app .hero p{visibility:visible;animation:ec-stage-in 1.05s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-panel-visible #app .hero .hero-panel{visibility:visible;animation:ec-stage-in 1.25s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-buttons-visible #app .hero .buttons{visibility:visible;animation:ec-stage-in .7s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-rest-visible #app .strip,body.ec-opening.ec-rest-visible #app .hero~*,body.ec-opening.ec-rest-visible .footer{visibility:visible;animation:ec-stage-in 1.15s cubic-bezier(.22,1,.36,1) both}
+body.ec-opening.ec-copy-visible #app .hero p{visibility:visible;animation:ec-stage-opacity 1.05s ease both!important}
+body.ec-opening.ec-panel-visible #app .hero .hero-panel{visibility:visible;animation:ec-stage-opacity 1.25s ease both!important}
+body.ec-opening.ec-buttons-visible #app .hero .buttons{visibility:visible;animation:ec-stage-opacity 1.05s ease both!important}
+body.ec-opening.ec-rest-visible #app .strip,body.ec-opening.ec-rest-visible #app .hero~*,body.ec-opening.ec-rest-visible .footer{visibility:visible;animation:ec-stage-opacity 1.15s ease both!important}
+body.ec-intro-complete #app .hero h1,body.ec-intro-complete #app .hero p,body.ec-intro-complete #app .hero .buttons,body.ec-intro-complete #app .hero .hero-panel,body.ec-intro-complete #app .strip,body.ec-intro-complete #app .hero~*,body.ec-intro-complete .footer,body.ec-intro-complete .site-header,body.ec-intro-complete #app .ec-reveal,body.ec-intro-complete #app.ec-page-in{animation:none!important;visibility:visible!important;opacity:1!important}
+body.ec-intro-complete .site-header{transform:none!important}
 @media(prefers-reduced-motion:reduce){body.ec-opening::before{display:none}body.ec-opening .site-header,body.ec-opening #app .hero h1,body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:visible!important;opacity:1!important;transform:none!important;animation:none!important}}
 </style>
 <style>
