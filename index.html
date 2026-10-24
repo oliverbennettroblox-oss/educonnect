@@ -12,15 +12,15 @@ body.ec-opening{background:#143f37}
 body.ec-opening::before{content:"";position:fixed;inset:0;background:#143f37;z-index:35;pointer-events:none;opacity:1;transition:opacity .6s ease}
 body.ec-opening.ec-background-clear::before{opacity:0}
 body.ec-opening .site-header{position:relative;z-index:55;opacity:0;transform:translateY(-100%);pointer-events:none}
-body.ec-opening.ec-nav-visible .site-header{animation:ec-nav-in .65s cubic-bezier(.22,1,.36,1) both;pointer-events:auto}
+body.ec-opening.ec-nav-visible .site-header{animation:ec-nav-in 1.05s cubic-bezier(.22,1,.36,1) both;pointer-events:auto}
 body.ec-opening #app .hero{position:relative;z-index:45;background:#143f37}
-body.ec-opening #app .hero h1{visibility:visible;animation:ec-title-real 1.1s cubic-bezier(.22,1,.36,1) both!important}
+body.ec-opening #app .hero h1{visibility:visible;animation:ec-title-real 1.9s cubic-bezier(.22,1,.36,1) both!important}
 body.ec-opening #app .hero h1 em{display:inline}
 body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:hidden;opacity:0}
-body.ec-opening.ec-copy-visible #app .hero p{visibility:visible;animation:ec-stage-in .7s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-panel-visible #app .hero .hero-panel{visibility:visible;animation:ec-stage-in .85s cubic-bezier(.22,1,.36,1) both}
+body.ec-opening.ec-copy-visible #app .hero p{visibility:visible;animation:ec-stage-in 1.05s cubic-bezier(.22,1,.36,1) both}
+body.ec-opening.ec-panel-visible #app .hero .hero-panel{visibility:visible;animation:ec-stage-in 1.25s cubic-bezier(.22,1,.36,1) both}
 body.ec-opening.ec-buttons-visible #app .hero .buttons{visibility:visible;animation:ec-stage-in .7s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-rest-visible #app .strip,body.ec-opening.ec-rest-visible #app .hero~*,body.ec-opening.ec-rest-visible .footer{visibility:visible;animation:ec-stage-in .75s cubic-bezier(.22,1,.36,1) both}
+body.ec-opening.ec-rest-visible #app .strip,body.ec-opening.ec-rest-visible #app .hero~*,body.ec-opening.ec-rest-visible .footer{visibility:visible;animation:ec-stage-in 1.15s cubic-bezier(.22,1,.36,1) both}
 @media(prefers-reduced-motion:reduce){body.ec-opening::before{display:none}body.ec-opening .site-header,body.ec-opening #app .hero h1,body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:visible!important;opacity:1!important;transform:none!important;animation:none!important}}
 </style>
 <style>
@@ -204,12 +204,12 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
   body.classList.remove('ec-opening','ec-nav-visible','ec-copy-visible','ec-panel-visible','ec-buttons-visible','ec-rest-visible','ec-background-clear');
  }
  // The real homepage heading appears in its final position immediately.
- after(1080,()=>body.classList.add('ec-nav-visible'));
- after(1450,()=>body.classList.add('ec-copy-visible'));
- after(1820,()=>body.classList.add('ec-panel-visible'));
- after(2210,()=>body.classList.add('ec-buttons-visible'));
- after(2530,()=>body.classList.add('ec-background-clear','ec-rest-visible'));
- after(3300,finish);
+ after(2200,()=>body.classList.add('ec-nav-visible'));
+ after(3250,()=>body.classList.add('ec-copy-visible'));
+ after(4300,()=>body.classList.add('ec-panel-visible'));
+ after(5400,()=>body.classList.add('ec-buttons-visible'));
+ after(6250,()=>body.classList.add('ec-background-clear','ec-rest-visible'));
+ after(7700,finish);
  window.addEventListener('keydown',e=>{if(e.key==='Escape')finish()},{once:true});
 })();
 
