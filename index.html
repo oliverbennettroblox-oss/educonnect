@@ -6,10 +6,10 @@
 #educonnect-intro .intro-logo{width:clamp(55px,9vw,90px);height:clamp(55px,9vw,90px);object-fit:contain;margin:0 auto 27px;animation:ec-logo-arrive .8s cubic-bezier(.22,1,.36,1) both}
 #educonnect-intro .intro-headline{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(35px,7.5vw,92px);font-weight:800;line-height:1.09;letter-spacing:-.065em}
 #educonnect-intro .intro-row{display:block;overflow:hidden}
-#educonnect-intro .intro-row>span{display:inline-block;animation:ec-type-reveal .95s cubic-bezier(.22,1,.36,1) both}
-#educonnect-intro .intro-row.first>span{animation-delay:.2s}
-#educonnect-intro .intro-row.second>span{color:#d9ed8e;animation-delay:.75s}
-#educonnect-intro .intro-caption{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#d2e7d8;margin-top:23px;animation:ec-caption .8s 1.4s both}
+#educonnect-intro .intro-row>span{display:inline-block;animation:ec-type-reveal .78s cubic-bezier(.22,1,.36,1) both}
+#educonnect-intro .intro-row.first>span{animation-delay:.12s}
+#educonnect-intro .intro-row.second>span{color:#d9ed8e;animation-delay:.57s}
+#educonnect-intro .intro-caption{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#d2e7d8;margin-top:23px;animation:ec-caption .5s 1.0s both}
 #educonnect-intro .intro-skip{position:absolute;right:22px;bottom:20px;color:#e3f0e8;background:transparent;border:1px solid #8fbaa3;border-radius:30px;padding:6px 16px;font-size:12px;z-index:3}
 #educonnect-intro .intro-glow{position:absolute;width:65vmax;height:65vmax;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(126,192,153,.25),transparent 65%);animation:ec-glow 3s ease both;pointer-events:none}
 @keyframes ec-type-reveal{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(26px)}to{opacity:1;clip-path:inset(0 0 0 0);transform:translateY(0)}}
@@ -219,19 +219,19 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
    {transform:'translate(-50%,-50%) translate3d(0,0,0) scale(1)',opacity:1,filter:'blur(0)'},
    {transform:'translate(-50%,-50%) translate3d('+((tx-fx)*.82)+'px,'+((ty-fy)*.82)+'px,60px) scale('+(scale*1.09)+')',opacity:1,filter:'blur(0)',offset:.72},
    {transform:'translate(-50%,-50%) translate3d('+(tx-fx)+'px,'+(ty-fy)+'px,0) scale('+scale+')',opacity:0,filter:'blur(2px)'}
-  ],{duration:1050,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+  ],{duration:850,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
   const rect=hero.getBoundingClientRect();
   const bottom=Math.max(0,innerHeight-rect.bottom),right=Math.max(0,innerWidth-rect.right);
   const backdrop=el.animate([
    {clipPath:'inset(0px 0px 0px 0px round 0px)',opacity:1},
    {clipPath:'inset('+Math.max(0,rect.top)+'px '+right+'px '+bottom+'px '+Math.max(0,rect.left)+'px round 0px)',opacity:1,offset:.65},
    {clipPath:'inset('+Math.max(0,rect.top)+'px '+right+'px '+bottom+'px '+Math.max(0,rect.left)+'px round 0px)',opacity:0}
-  ],{duration:1120,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
+  ],{duration:920,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
   Promise.allSettled([move.finished,backdrop.finished]).then(()=>{heading.style.visibility='';remove()});
-  setTimeout(()=>{heading.style.visibility='';remove()},1500);
+  setTimeout(()=>{heading.style.visibility='';remove()},1150);
  }
  el.querySelector('.intro-skip').addEventListener('click',()=>finish(true));
- timer=setTimeout(()=>finish(false),2850);
+ timer=setTimeout(()=>finish(false),1730);
 })();
 </script><script>
 (function(){
