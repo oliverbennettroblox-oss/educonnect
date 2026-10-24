@@ -3,26 +3,25 @@
 .admin-tabs,.profile-tabs{display:flex;gap:9px;flex-wrap:wrap;margin:23px 0;border-bottom:1px solid var(--line);padding-bottom:16px}.admin-tabs .button,.profile-tabs .button{font-size:12px;padding:10px 14px}[data-admin-panel][hidden],[data-profile-panel][hidden]{display:none!important}[data-admin-panel],[data-profile-panel]{padding:12px 0 30px} .filing-overview{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px 0 24px;border-bottom:1px solid var(--line)}.filing-overview h3{margin:3px 0}.filing-overview p{margin:0}.filing-overview>strong{font-size:14px;color:var(--muted);white-space:nowrap}.filing-entry{padding:24px 0;border-bottom:1px solid var(--line)}.filing-entry-top{display:flex;justify-content:space-between;align-items:start;gap:16px}.filing-entry-top h4{font-size:18px;margin:5px 0}.filing-entry-top time{font-size:13px;color:var(--muted);white-space:nowrap}.filing-changes{margin:14px 0 20px;border-top:1px solid var(--line)}.filing-change{display:grid;grid-template-columns:minmax(120px,32%) 1fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}.filing-change span{overflow-wrap:anywhere} @media(max-width:600px){.filing-change{grid-template-columns:1fr;gap:2px}} </style><style>
 
 /* Home opening sequence: title, real navigation, supporting copy, actions, content */
-#educonnect-intro{position:fixed;inset:0;z-index:9999;background:#143f37;color:#fff;display:grid;place-items:center;pointer-events:none}
-#educonnect-intro .intro-inner{width:min(1040px,calc(100% - 40px));text-align:center;will-change:transform,opacity}
-#educonnect-intro .intro-headline{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(38px,7.5vw,92px);font-weight:800;line-height:1.09;letter-spacing:-.06em}
-#educonnect-intro .intro-row{display:block;overflow:hidden}
-#educonnect-intro .intro-row span{display:inline-block;animation:ec-title-in .8s cubic-bezier(.22,1,.36,1) both}
-#educonnect-intro .intro-row.second span{color:#d9ed8e;animation-delay:.42s}
-@keyframes ec-title-in{from{opacity:0;transform:translateY(110%)}to{opacity:1;transform:translateY(0)}}
-@keyframes ec-stage-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* Intro takes place inside the REAL homepage, no duplicate headline. */
+@keyframes ec-title-real{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(16px)}to{opacity:1;clip-path:inset(0 0 0 0);transform:translateY(0)}}
+@keyframes ec-stage-in{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ec-nav-in{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
 body.ec-opening{background:#143f37}
-body.ec-opening .site-header{position:relative;z-index:10001;opacity:0;transform:translateY(-100%)}
-body.ec-opening.ec-nav-visible .site-header{animation:ec-nav-in .65s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening #app .hero h1,body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:hidden}
+body.ec-opening::before{content:"";position:fixed;inset:0;background:#143f37;z-index:35;pointer-events:none;opacity:1;transition:opacity .6s ease}
+body.ec-opening.ec-background-clear::before{opacity:0}
+body.ec-opening .site-header{position:relative;z-index:55;opacity:0;transform:translateY(-100%);pointer-events:none}
+body.ec-opening.ec-nav-visible .site-header{animation:ec-nav-in .65s cubic-bezier(.22,1,.36,1) both;pointer-events:auto}
+body.ec-opening #app .hero{position:relative;z-index:45;background:#143f37}
+body.ec-opening #app .hero h1{visibility:visible;animation:ec-title-real 1.1s cubic-bezier(.22,1,.36,1) both!important}
+body.ec-opening #app .hero h1 em{display:inline}
+body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:hidden;opacity:0}
 body.ec-opening.ec-copy-visible #app .hero p{visibility:visible;animation:ec-stage-in .7s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-panel-visible #app .hero .hero-panel{visibility:visible;animation:ec-stage-in .8s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-buttons-visible #app .hero .buttons{visibility:visible;animation:ec-stage-in .65s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-rest-visible #app .strip,body.ec-opening.ec-rest-visible #app .hero~*,body.ec-opening.ec-rest-visible .footer{visibility:visible;animation:ec-stage-in .65s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-heading-visible #app .hero h1{visibility:visible;animation:ec-stage-in .5s cubic-bezier(.22,1,.36,1) both}
-body.ec-opening.ec-finished .site-header{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){#educonnect-intro{display:none!important}body.ec-opening .site-header,body.ec-opening #app .hero h1,body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:visible!important;opacity:1!important;transform:none!important;animation:none!important}}
+body.ec-opening.ec-panel-visible #app .hero .hero-panel{visibility:visible;animation:ec-stage-in .85s cubic-bezier(.22,1,.36,1) both}
+body.ec-opening.ec-buttons-visible #app .hero .buttons{visibility:visible;animation:ec-stage-in .7s cubic-bezier(.22,1,.36,1) both}
+body.ec-opening.ec-rest-visible #app .strip,body.ec-opening.ec-rest-visible #app .hero~*,body.ec-opening.ec-rest-visible .footer{visibility:visible;animation:ec-stage-in .75s cubic-bezier(.22,1,.36,1) both}
+@media(prefers-reduced-motion:reduce){body.ec-opening::before{display:none}body.ec-opening .site-header,body.ec-opening #app .hero h1,body.ec-opening #app .hero p,body.ec-opening #app .hero .buttons,body.ec-opening #app .hero .hero-panel,body.ec-opening #app .strip,body.ec-opening #app .hero~*,body.ec-opening .footer{visibility:visible!important;opacity:1!important;transform:none!important;animation:none!important}}
 </style>
 <style>
 /* educonnect interaction system — progressive enhancement */
@@ -191,47 +190,26 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
  const home=!location.hash||location.hash==='#home';
  if(!home&&!force)return;
  let seen=false;try{seen=sessionStorage.getItem('ec-intro-seen')==='1'}catch(e){}
- if(seen&&!force)return;
- if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ if(seen&&!force||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  const body=document.body;
  const hero=document.querySelector('#app .hero');
  if(!hero)return;
  body.classList.add('ec-opening');
- const el=document.createElement('div');
- el.id='educonnect-intro';el.setAttribute('aria-hidden','true');
- el.innerHTML='<div class="intro-inner"><div class="intro-headline"><span class="intro-row first"><span>Helping schools</span></span><span class="intro-row second"><span>do more, together.</span></span></div></div>';
- body.appendChild(el);
- const inner=el.querySelector('.intro-inner');
  let completed=false;
  const timers=[];
  const after=(ms,fn)=>timers.push(setTimeout(fn,ms));
  function finish(){
-  if(completed)return;completed=true;
-  timers.forEach(clearTimeout);
+  if(completed)return;completed=true;timers.forEach(clearTimeout);
   try{sessionStorage.setItem('ec-intro-seen','1')}catch(e){}
-  body.classList.add('ec-heading-visible','ec-copy-visible','ec-panel-visible','ec-buttons-visible','ec-rest-visible','ec-nav-visible','ec-finished');
-  el.remove();
-  body.classList.remove('ec-opening','ec-nav-visible','ec-heading-visible','ec-copy-visible','ec-panel-visible','ec-buttons-visible','ec-rest-visible','ec-finished');
+  body.classList.remove('ec-opening','ec-nav-visible','ec-copy-visible','ec-panel-visible','ec-buttons-visible','ec-rest-visible','ec-background-clear');
  }
- // The title is the only visible element initially. Then reveal the actual site in order.
- after(1030,()=>body.classList.add('ec-nav-visible'));
- after(1500,()=>{
-  const heading=hero.querySelector('h1');
-  if(!heading){finish();return}
-  const from=inner.getBoundingClientRect(),to=heading.getBoundingClientRect();
-  const dx=to.left+to.width/2-(from.left+from.width/2);
-  const dy=to.top+to.height/2-(from.top+from.height/2);
-  const scale=Math.min(to.width/from.width,to.height/from.height,1);
-  const movement=inner.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:'translate('+dx+'px,'+dy+'px) scale('+scale+')',opacity:0}],{duration:850,easing:'cubic-bezier(.22,1,.36,1)',fill:'forwards'});
-  const curtain=el.animate([{opacity:1},{opacity:0}],{duration:750,delay:180,easing:'ease-out',fill:'forwards'});
-  movement.finished.then(()=>body.classList.add('ec-heading-visible')).catch(()=>{});
-  curtain.finished.then(()=>el.remove()).catch(()=>{});
- });
- after(1820,()=>body.classList.add('ec-copy-visible'));
- after(2100,()=>body.classList.add('ec-panel-visible'));
- after(2400,()=>body.classList.add('ec-buttons-visible'));
- after(2720,()=>body.classList.add('ec-rest-visible'));
- after(3450,finish);
+ // The real homepage heading appears in its final position immediately.
+ after(1080,()=>body.classList.add('ec-nav-visible'));
+ after(1450,()=>body.classList.add('ec-copy-visible'));
+ after(1820,()=>body.classList.add('ec-panel-visible'));
+ after(2210,()=>body.classList.add('ec-buttons-visible'));
+ after(2530,()=>body.classList.add('ec-background-clear','ec-rest-visible'));
+ after(3300,finish);
  window.addEventListener('keydown',e=>{if(e.key==='Escape')finish()},{once:true});
 })();
 
