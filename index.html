@@ -4,6 +4,7 @@
 #educonnect-intro{position:fixed;inset:0;z-index:9999;background:#102e29;display:grid;place-items:center;opacity:1;transition:opacity .45s ease;pointer-events:none}
 #educonnect-intro.intro-done{opacity:0}
 #educonnect-intro .intro-inner{text-align:center;color:#fff;padding:24px;animation:intro-rise .65s ease both}
+#educonnect-intro .intro-logo{display:block;width:clamp(72px,16vw,110px);height:clamp(72px,16vw,110px);object-fit:contain;margin:0 auto 20px;animation:intro-rise .65s ease both}
 #educonnect-intro .intro-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:clamp(38px,8vw,76px);font-weight:800;letter-spacing:-.055em}
 #educonnect-intro .intro-line{width:0;height:3px;margin:17px auto;background:#a5d3b8;animation:intro-line .85s .15s ease forwards}
 #educonnect-intro .intro-caption{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#b8d8c5}
@@ -152,7 +153,7 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
  // Opt-in preview only: add ?intro=1 to the URL. Normal visitors never see it.
  if(new URLSearchParams(location.search).get('intro')!=='1')return;
  const el=document.createElement('div');el.id='educonnect-intro';
- el.innerHTML='<div class="intro-inner"><div class="intro-name">educonnect<span style="color:#a5d3b8">.</span></div><div class="intro-line"></div><div class="intro-caption">Supporting better schools</div></div>';
+ el.innerHTML='<div class="intro-inner"><img class="intro-logo" src="educonnect-icon.svg" alt="" aria-hidden="true"><div class="intro-name">educonnect<span style="color:#a5d3b8">.</span></div><div class="intro-line"></div><div class="intro-caption">Supporting better schools</div></div>';
  document.body.appendChild(el);
  const finish=()=>{el.classList.add('intro-done');setTimeout(()=>el.remove(),500)};
  setTimeout(finish,window.matchMedia('(prefers-reduced-motion: reduce)').matches?350:1600);
