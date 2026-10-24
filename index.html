@@ -5,15 +5,9 @@
 /* Home opening sequence: title, real navigation, supporting copy, actions, content */
 
 /* The intro reveals final-layout elements without changing their geometry. */
-/* Soft cinematic light-wipe: masks horizontally only, never crops descenders. */
-@keyframes ec-title-real{
- 0%{opacity:0;filter:blur(9px);-webkit-mask-position:100% 0;mask-position:100% 0}
- 12%{opacity:1;filter:blur(5px)}
- 65%{filter:blur(0)}
- 100%{opacity:1;filter:blur(0);-webkit-mask-position:0 0;mask-position:0 0}
-}
+/* No wipes or masks: a quiet, elegant focus-and-opacity reveal. */
+@keyframes ec-title-real{0%{opacity:0;filter:blur(12px)}45%{opacity:.65;filter:blur(4px)}100%{opacity:1;filter:blur(0)}}
 @keyframes ec-title-accent{from{color:#ffffff}to{color:var(--lime)}}
-
 @keyframes ec-stage-opacity{from{opacity:0}to{opacity:1}}
 @keyframes ec-nav-in{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
 html.ec-intro-locked,html.ec-intro-locked body{overflow:hidden!important;overscroll-behavior:none!important}
@@ -26,11 +20,8 @@ body.ec-opening .site-header{z-index:55;opacity:0;transform:translateY(-100%)}
 body.ec-opening.ec-nav-visible .site-header{animation:ec-nav-in 1.05s cubic-bezier(.22,1,.36,1) both}
 body.ec-opening #app .hero{position:relative;z-index:45}
 body.ec-opening #app .hero h1{
- animation:ec-title-real 2.15s cubic-bezier(.22,1,.36,1) both!important;
- -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 43%,rgba(0,0,0,.85) 47%,transparent 56%,transparent 100%);
- mask-image:linear-gradient(90deg,#000 0%,#000 43%,rgba(0,0,0,.85) 47%,transparent 56%,transparent 100%);
- -webkit-mask-size:220% 100%;mask-size:220% 100%;
- -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+ animation:ec-title-real 2.15s ease-out both!important;
+ clip-path:none!important;-webkit-mask:none!important;mask:none!important;
  overflow:visible!important;
 }
 body.ec-opening #app .hero h1 em{animation:ec-title-accent 1.35s ease-out .65s both}
@@ -230,12 +221,21 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
  function finish(){
   if(completed)return;completed=true;timers.forEach(clearTimeout);
   try{sessionStorage.setItem('ec-intro-seen','1')}catch(e){}
+  // Keep the completed reveal styles applied on this homepage: removing them
+  // immediately reflows the headline/panel and replays generic entrance effects.
+  // The transparent overlay remains non-interactive, and the page unlocks below.
   body.classList.add('ec-intro-complete');
-  body.classList.remove('ec-opening','ec-nav-visible','ec-copy-visible','ec-panel-visible','ec-buttons-visible','ec-rest-visible','ec-background-clear');
   root.classList.remove('ec-intro-locked');
   document.removeEventListener('keydown',focusGuard,true);
   document.removeEventListener('wheel',wheelGuard,true);
   document.removeEventListener('touchmove',wheelGuard,true);
+  const leaveIntro=()=>{
+    if(document.querySelector('#app .hero'))return;
+    body.classList.remove('ec-opening','ec-nav-visible','ec-copy-visible','ec-panel-visible','ec-buttons-visible','ec-rest-visible','ec-background-clear','ec-intro-complete');
+    observer.disconnect();
+  };
+  const observer=new MutationObserver(leaveIntro);
+  observer.observe(document.getElementById('app'),{childList:true});
   if(previouslyFocused instanceof HTMLElement&&previouslyFocused!==document.body&&document.contains(previouslyFocused))previouslyFocused.blur();
  }
  // The real homepage heading appears in its final position immediately.
