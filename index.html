@@ -11,6 +11,30 @@
 @keyframes intro-rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes intro-line{to{width:110px}}
 @media(prefers-reduced-motion:reduce){#educonnect-intro *,#educonnect-intro{animation:none!important;transition:none!important}}
+</style>
+<style>
+/* educonnect interaction system — progressive enhancement */
+:root{--ec-ease:cubic-bezier(.22,1,.36,1)}
+@keyframes ec-enter{from{opacity:0;transform:translate3d(0,16px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes ec-pop{from{opacity:0;transform:translate3d(0,10px,0) scale(.985)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+#app.ec-page-in{animation:ec-enter .48s var(--ec-ease) both}
+#app .result,#app .feature,#app .stat,#app .resource,#app .hero-panel,#app .quickrow{transition:transform .28s var(--ec-ease),box-shadow .28s ease,border-color .28s ease,background-color .28s ease}
+@media(hover:hover) and (pointer:fine){
+ #app .result:hover,#app .feature:hover,#app .resource:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(16,46,41,.09);border-color:#b5d5c3}
+ #app .quickrow:hover{transform:translateX(4px)}
+ #app .stat:hover{transform:translateY(-2px)}
+}
+button,.button,a{transition:background-color .22s ease,color .22s ease,border-color .22s ease,box-shadow .22s ease,transform .22s var(--ec-ease)}
+@media(hover:hover) and (pointer:fine){button:hover,.button:hover{filter:brightness(1.035)}}
+button:active,.button:active{transform:scale(.98)}
+#app .ec-reveal{animation:ec-pop .52s var(--ec-ease) both;animation-delay:var(--ec-delay,0ms)}
+#app .pagehero h1,#app .hero h1{animation:ec-enter .65s var(--ec-ease) both}
+#app .pagehero p,#app .hero p{animation:ec-enter .65s .09s var(--ec-ease) both}
+#app .form input:focus,#app .form textarea:focus,#app .form select:focus{border-color:#337965;box-shadow:0 0 0 4px rgba(51,121,101,.12);transition:box-shadow .22s ease,border-color .22s ease}
+@media(prefers-reduced-motion:reduce){
+ #app.ec-page-in,#app .ec-reveal,#app .pagehero h1,#app .pagehero p,#app .hero h1,#app .hero p{animation:none!important}
+ #app .result,#app .feature,#app .stat,#app .resource,#app .hero-panel,#app .quickrow,button,.button,a{transition:none!important;transform:none!important}
+}
 </style></head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Academy trusts</button><button data-page="standards" onclick="go('standards')">Standards & inspections</button><button data-page="resources" onclick="go('resources')">Resources</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('curriculum')">Curriculum frameworks</button><button onclick="go('policies')">Policies & guidance</button><button onclick="go('funding')">Funding</button><button onclick="go('providers')">Partners</button><button onclick="go('about')">About educonnect</button><button onclick="go('team')">Our team</button><button onclick="go('careers')">Careers</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('curriculum')">Curriculum</button><button onclick="go('policies')">Policies</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
 const schools=[];
 const documents=[{id:'primary',category:'Curriculum',title:'Primary curriculum framework',desc:'Learning aims, subject expectations and sample timetabling for primary schools.',sections:[['Purpose','A flexible framework for primary schools to plan purposeful lessons and age-appropriate learning experiences.'],['Core learning areas','English and communication, mathematics, science, digital literacy, humanities and creative learning.'],['Implementation','Publish a curriculum overview, plan progressive learning objectives and review pupil experience each term.'],['Evidence for review','Sample lesson plans, timetables, resources and examples of pupil work created within the Roblox environment.']]},{id:'secondary',category:'Curriculum',title:'Secondary curriculum framework',desc:'Subject progression, assessment principles and enrichment for secondary schools.',sections:[['Purpose','A coherent secondary programme balancing knowledge, skills, creative work and student choice.'],['Core provision','English, mathematics, science, humanities, computing, creative subjects and personal development.'],['Assessment','Use transparent criteria, proportionate feedback and opportunities for students to demonstrate progress.'],['Quality checks','Review subject coverage, teaching consistency and accessibility of learning materials.']]},{id:'post16',category:'Curriculum',title:'Post-16 and vocational framework',desc:'Programme planning for sixth forms, colleges and specialist providers.',sections:[['Programme design','Set out the purpose, entry expectations, timetable and outcomes of each course.'],['Learning pathways','Offer academic, creative, technical or vocational pathways appropriate to your Roblox setting.'],['Review','Gather learner feedback and examples of project work to evaluate programme quality.']]},{id:'safeguarding',category:'Policy',title:'Safeguarding and online conduct',desc:'Minimum expectations for safe communication, reporting and moderation.',sections:[['Scope','Participating schools must follow Roblox platform rules and applicable safeguarding obligations.'],['Conduct','No requests for private personal details, off-platform contact or inappropriate conversations with young users.'],['Reporting','Publish clear reporting routes, appoint responsible moderators and escalate serious concerns to appropriate real-world services.'],['Review','Review moderation logs and the policy regularly.']]},{id:'conduct',category:'Policy',title:'Staff code of conduct',desc:'Professional expectations for school leaders, teachers and volunteers.',sections:[['Professional behaviour','Treat all community members respectfully, avoid favouritism and use approved communication channels.'],['Accountability','Define staff responsibilities, moderation permissions and an accessible complaints process.'],['Conflicts of interest','Disclose relevant commercial or personal interests when making decisions.']]},{id:'admissions',category:'Policy',title:'Admissions and inclusion',desc:'Fair access, transparent entry criteria and inclusive participation.',sections:[['Admissions','Publish clear entry requirements and avoid arbitrary or discriminatory selection.'],['Accessibility','Offer accessible ways to participate and reasonable alternatives where possible.'],['Appeals','Provide a straightforward way to question an admissions decision.']]},{id:'inspection',category:'Guidance',title:'School review handbook',desc:'What inspectors consider, how evidence is reviewed and how outcomes are published.',sections:[['Before the review','Schools receive a scope statement and an evidence checklist.'],['Review areas','Educational experience, leadership, community safety, inclusion and technical reliability.'],['Outcome','A written report highlights strengths, development priorities and a follow-up plan.'],['Fairness','Schools can respond to factual inaccuracies before publication.']]},{id:'registration',category:'Guidance',title:'School registration guide',desc:'Eligibility, required information and the review process for new applicants.',sections:[['Who can apply','Roblox schools and education providers willing to follow educonnect participation standards.'],['What to prepare','School name, Roblox group, leadership contact, school phase and a brief description of provision.'],['What happens next','An educonnect reviewer checks the submission before a school can be listed as registered.']]}];
@@ -158,5 +182,34 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
  const finish=()=>{el.classList.add('intro-done');setTimeout(()=>el.remove(),500)};
  setTimeout(finish,window.matchMedia('(prefers-reduced-motion: reduce)').matches?350:1600);
  el.addEventListener('click',finish);
+})();
+</script><script>
+(function(){
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let scheduled=false;
+ function enhance(){
+  scheduled=false;
+  const app=document.getElementById('app');if(!app)return;
+  if(reduced.matches)return;
+  const els=app.querySelectorAll('.result,.feature,.resource,.stat,.hero-panel,.quickrow');
+  els.forEach((el,i)=>{
+   if(el.dataset.ecAnimated)return;
+   el.dataset.ecAnimated='1';
+   el.style.setProperty('--ec-delay',Math.min(i%9,8)*45+'ms');
+   el.classList.add('ec-reveal');
+  });
+ }
+ function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(enhance)}
+ const app=document.getElementById('app');
+ if(!app)return;
+ const observer=new MutationObserver(schedule);
+ observer.observe(app,{childList:true,subtree:true});
+ document.addEventListener('click',e=>{
+  const nav=e.target.closest('[data-page],.sidenav button,.quickrow');
+  if(!nav||reduced.matches)return;
+  app.classList.remove('ec-page-in');
+  requestAnimationFrame(()=>app.classList.add('ec-page-in'));
+ });
+ schedule();
 })();
 </script></body></html>
