@@ -8,6 +8,18 @@
 @keyframes ec-title-real{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(16px)}to{opacity:1;clip-path:inset(0 0 0 0);transform:translateY(0)}}
 @keyframes ec-stage-in{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ec-nav-in{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
+/* Preserve final animation state without replaying entrance effects at unlock. */
+body.ec-intro-complete #app .hero h1,
+body.ec-intro-complete #app .hero p,
+body.ec-intro-complete #app .hero .buttons,
+body.ec-intro-complete #app .hero .hero-panel,
+body.ec-intro-complete #app .strip,
+body.ec-intro-complete #app .hero~*,
+body.ec-intro-complete .footer,
+body.ec-intro-complete .site-header,
+body.ec-intro-complete #app .ec-reveal,
+body.ec-intro-complete #app.ec-page-in{animation:none!important;visibility:visible!important;opacity:1!important}
+body.ec-intro-complete .site-header{transform:none!important}
 body.ec-opening{background:#143f37}
 html.ec-intro-locked,html.ec-intro-locked body{overflow:hidden!important;overscroll-behavior:none!important}
 html.ec-intro-locked body>*{pointer-events:none!important}
@@ -218,6 +230,7 @@ db.auth.onAuthStateChange(()=>setTimeout(session,0));await session();if(current=
  function finish(){
   if(completed)return;completed=true;timers.forEach(clearTimeout);
   try{sessionStorage.setItem('ec-intro-seen','1')}catch(e){}
+  body.classList.add('ec-intro-complete');
   body.classList.remove('ec-opening','ec-nav-visible','ec-copy-visible','ec-panel-visible','ec-buttons-visible','ec-rest-visible','ec-background-clear');
   root.classList.remove('ec-intro-locked');
   document.removeEventListener('keydown',focusGuard,true);
