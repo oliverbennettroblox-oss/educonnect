@@ -219,7 +219,7 @@ else if(mode==='number')value=(sel||'First item\nSecond item').split('\n').map((
 else if(mode==='check')value=(sel||'First task\nSecond task').split('\n').map(x=>'- [ ] '+x).join('\n');
 else if(mode==='quote')value='> '+(sel||'Important note');
 else if(mode==='table')value='\n| Area | Responsibility |\n| --- | --- |\n| Education | Teaching and learning |\n| Operations | Daily coordination |\n';
-else if(mode==='chart')value='\n'+'`{3}orgchart\nHeadteacher | Whole School Management\n---\nDeputy Headteacher | Quality of Education\nDeputy Headteacher | Behaviour & Pastoral\n---\nAssistant Headteacher | Staff Development\n`{3}\n';
+else if(mode==='chart')value='\n'+'```orgchart\nHeadteacher | Whole School Management\n---\nDeputy Headteacher | Quality of Education\nDeputy Headteacher | Behaviour & Pastoral\n---\nAssistant Headteacher | Staff Development\n```\n';
 ta.setRangeText(value,start,end,'select');ta.focus();ta.dispatchEvent(new Event('input',{bubbles:true}));
 });ta.addEventListener('input',refresh);
 });}
