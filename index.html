@@ -307,33 +307,40 @@ const icon=await pdfBrandIcon();let page=1,y=0;
 const rect=(x,yy,w,h,fill,r=0)=>{pdf.setFillColor(...fill);if(r)pdf.roundedRect(x,yy,w,h,r,r,'F');else pdf.rect(x,yy,w,h,'F');};
 const txt=(v,x,yy,size=10,color=ink,bold=false,opts={})=>{pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(size);pdf.setTextColor(...color);pdf.text(String(v??''),x,yy,opts);};
 const rule=(yy)=>{pdf.setDrawColor(...line);pdf.setLineWidth(.3);pdf.line(19,yy,191,yy);};
-const base=()=>{rect(0,0,W,7,green);pdf.addImage(icon,'PNG',19,14,10,10);txt('EDUCONNECT',33,21,10,green,true);txt('VOLUNTARY SCHOOL REVIEW',191,21,7,muted,true,{align:'right'});rule(29);rule(277);txt('EDUCONNECT  /  INDEPENDENT ROEDUCATION REVIEW',19,284,7,muted,true);txt(String(ref)+'  •  '+String(page).padStart(2,'0'),191,284,7,muted,false,{align:'right'});};
-const next=()=>{pdf.addPage();page++;base();y=40;};
+const base=()=>{rect(0,0,W,5,green);rect(0,5,7,24,[89,154,114]);pdf.addImage(icon,'PNG',19,14,10,10);txt('EDUCONNECT',33,21,10,green,true);txt('VOLUNTARY SCHOOL REVIEW',191,21,7,muted,true,{align:'right'});rule(29);rule(277);txt('EDUCONNECT  /  INDEPENDENT ROEDUCATION REVIEW',19,284,7,muted,true);txt(String(ref)+'  •  '+String(page).padStart(2,'0'),191,284,7,muted,false,{align:'right'});};
+const next=()=>{pdf.addPage();page++;base();y=42;};
 const ensure=(height=15)=>{if(y+height>269)next();};
 const label=(v,x,yy)=>txt(String(v).toUpperCase(),x,yy,8,green,true);
 const para=(value,opts={})=>{const str=String(value||'Not provided').replace(/\r/g,'');const width=opts.width||172;const fontSize=opts.size||10;const lh=opts.lineHeight||5.6;pdf.setFont('helvetica','normal');pdf.setFontSize(fontSize);let chunks=str.split('\n');for(let chunk of chunks){if(!chunk.trim()){y+=3;continue;}const lines=pdf.splitTextToSize(chunk.trim(),width);for(const ln of lines){ensure(lh+2);txt(ln,opts.x||19,y,fontSize,ink);y+=lh;}y+=1.8;}y+=4;};
-const section=(num,title)=>{ensure(27);y+=4;rect(19,y-6,8,8,green,1.5);txt(String(num).padStart(2,'0'),23,y-.3,7,white,true,{align:'center'});txt(title,33,y,13,deep,true);y+=7;rule(y);y+=9;};
-const short=(v,max=90)=>{const t=String(v||'Not graded');return t.length>max?t.slice(0,max-1)+'…':t;};
+const section=(num,title)=>{ensure(31);y+=5;rect(19,y-7,1.7,13,green);txt('SECTION '+String(num).padStart(2,'0'),25,y-1,7,green,true);const lines=pdf.splitTextToSize(title,151);txt(lines,25,y+7,15,deep,true);y+=lines.length*7+8;rule(y);y+=10;};
+const short=(v,max=90)=>{const t=String(v||'Not graded');return t.length>max?t.slice(0,max-3)+'...':t;};
 const date=(v)=>{if(!v)return 'Not specified';const m=String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[3]+'/'+m[2]+'/'+m[1]:String(v);};
 const name=String(s.name||'School'),schoolRef=String(s.reference_number||'');
 const grade=String(d.rating||'Not graded');
 const gradeColor=/outstanding|excellent/i.test(grade)?[17,111,77]:/requires improvement|inadequate|unsatisfactory/i.test(grade)?[139,78,33]:green;
-// Cover: green editorial hero with spacious typography.
-rect(0,0,W,116,green);rect(0,116,W,3,[183,215,191]);pdf.addImage(icon,'PNG',19,16,13,13);
-txt('EDUCONNECT',37,25,12,white,true);txt('EDUCATION  /  STANDARDS  /  IMPROVEMENT',19,43,8,[201,231,211],true);
-txt('Voluntary school',19,62,25,white,true);txt('review report',19,74,25,white,true);
-pdf.setFont('helvetica','bold');pdf.setFontSize(15);const schoolLines=pdf.splitTextToSize(name,168).slice(0,3);
-let sy=93;for(const n of schoolLines){txt(n,19,sy,15,white,true);sy+=7;}
-rect(19,128,172,35,mint,3);label('OVERALL JUDGEMENT',26,139);txt(short(grade,55),26,152,19,gradeColor,true);
-y=177;label('REPORT DETAILS',19,y);y+=8;
-const meta=[['Inspection date',date(d.inspection_date)],['Review type',d.inspection_type||'Voluntary inspection'],['Reviewer',d.inspector_name||'Not specified'],['Report reference',ref],['School reference',schoolRef||'Not supplied'],['Next review',date(d.next_review_date)]];
-for(let k=0;k<meta.length;k++){const [key,value]=meta[k],x=k%2?108:19,yy=y+Math.floor(k/2)*20;txt(key,x,yy,8,muted);const lines=pdf.splitTextToSize(String(value),78);txt(lines.slice(0,2),x,yy+6,10,ink,true);}
-rect(19,249,172,19,pale,2);txt('INDEPENDENT VOLUNTARY REVIEW',25,257,8,green,true);txt('This report is not a statutory school inspection or accreditation.',25,263,8,muted);
-rule(277);txt('EDUCONNECT  /  SCHOOL REVIEW',19,284,7,muted,true);txt(String(ref)+'  •  01',191,284,7,muted,false,{align:'right'});
+// Editorial cover with subtle geometric brand motifs and a distinct publication hierarchy.
+rect(0,0,W,146,deep);rect(0,0,7,146,[77,145,113]);rect(159,0,51,146,green);
+pdf.setDrawColor(88,150,119);pdf.setLineWidth(.45);
+for(let k=0;k<5;k++){pdf.circle(202,83,25+k*14,'S');}
+pdf.addImage(icon,'PNG',19,17,14,14);txt('EDUCONNECT',39,27,13,white,true);
+txt('SCHOOL STANDARDS & IMPROVEMENT',19,49,8,[191,220,202],true);
+rect(19,59,48,9,[65,128,100],2);txt('REVIEW PUBLICATION',23,65.2,7,white,true);
+txt('Voluntary',19,89,30,white,true);txt('school review',19,105,30,white,true);
+pdf.setDrawColor(138,184,154);pdf.line(19,115,87,115);
+pdf.setFont('helvetica','bold');pdf.setFontSize(13);const schoolLines=pdf.splitTextToSize(name,163).slice(0,3);let sy=126;
+for(const n of schoolLines){txt(n,19,sy,13,white,true);sy+=7;}
+rect(19,157,172,38,mint,3);rect(19,157,3,38,[63,138,99]);
+label('OVERALL JUDGEMENT',28,169);
+const gradeLines=pdf.splitTextToSize(grade,152);txt(gradeLines.slice(0,2),28,181,gradeLines.length>1?14:20,gradeColor,true);
+y=209;label('PUBLICATION DETAILS',19,y);pdf.setDrawColor(...line);pdf.line(19,214,191,214);
+const meta=[['INSPECTION DATE',date(d.inspection_date)],['REVIEW TYPE',d.inspection_type||'Voluntary inspection'],['LEAD REVIEWER',d.inspector_name||'Not specified'],['REPORT NUMBER',ref],['SCHOOL REFERENCE',schoolRef||'Not supplied'],['NEXT REVIEW',date(d.next_review_date)]];
+for(let k=0;k<meta.length;k++){const [key,value]=meta[k],x=k%2?108:19,yy=223+Math.floor(k/2)*15;txt(key,x,yy,6.6,muted,true);pdf.setFont('helvetica','bold');pdf.setFontSize(9);const lines=pdf.splitTextToSize(String(value),79);txt(lines.slice(0,2),x,yy+5.5,9,ink,true);}
+rect(19,270,172,7,pale);txt('VOLUNTARY REVIEW  /  NOT A STATUTORY INSPECTION',22,275,7,muted,true);
+txt('EDUCONNECT  /  EDUCATION REVIEW',19,286,7,muted,true);txt(String(ref)+'  /  01',191,286,7,muted,false,{align:'right'});
 next();section(1,'Inspection judgements');
 para('A summary of the review outcomes across the key areas considered.',{size:9.5});
 const areas=[['Teaching and learning',d.teaching_grade],['Behaviour and standards',d.behaviour_grade],['Leadership and management',d.leadership_grade],['Safeguarding and online safety',d.safeguarding_grade],['Curriculum quality',d.curriculum_grade],['Personal development and inclusion',d.development_grade]];
-for(let i=0;i<areas.length;i++){ensure(20);const [title,value]=areas[i];rect(19,y-4,172,16,i%2?white:pale,2);txt(title,24,y+3,9,ink,true);const val=short(value,42),wrapped=pdf.splitTextToSize(val,67);txt(wrapped.slice(0,2),185,y+3,8.7,green,true,{align:'right'});y+=19;}
+for(let i=0;i<areas.length;i++){ensure(24);const [title,value]=areas[i];rect(19,y-5,172,20,i%2?white:pale,2);rect(19,y-5,1.2,20,[93,159,118]);txt(String(i+1).padStart(2,'0'),25,y+4,8,muted,true);txt(title,38,y+4,9.2,ink,true);const val=short(value,34);const wrapped=pdf.splitTextToSize(val,54);txt(wrapped.slice(0,2),185,y+(wrapped.length>1?1:4),8.8,green,true,{align:'right'});y+=23;}
 y+=5;section(2,'Executive summary');para(d.summary);
 const sections=[['School context','context'],['Review methodology and evidence','scope'],['Teaching, learning and curriculum','curriculum'],['Leadership and management','leadership'],['Safeguarding and online safety','safeguarding'],['Behaviour and standards','behaviour'],['Personal development and inclusion','development'],['Key strengths','strengths'],['Priorities for improvement','improvements'],['Required actions and timescales','actions']];
 for(let i=0;i<sections.length;i++){section(i+3,sections[i][0]);para(d[sections[i][1]]);}
