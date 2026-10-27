@@ -336,7 +336,7 @@ y=209;label('PUBLICATION DETAILS',19,y);pdf.setDrawColor(...line);pdf.line(19,21
 const meta=[['INSPECTION DATE',date(d.inspection_date)],['REVIEW TYPE',d.inspection_type||'Voluntary inspection'],['LEAD REVIEWER',d.inspector_name||'Not specified'],['REPORT NUMBER',ref],['SCHOOL REFERENCE',schoolRef||'Not supplied'],['NEXT REVIEW',date(d.next_review_date)]];
 for(let k=0;k<meta.length;k++){const [key,value]=meta[k],x=k%2?108:19,yy=223+Math.floor(k/2)*15;txt(key,x,yy,6.6,muted,true);pdf.setFont('helvetica','bold');pdf.setFontSize(9);const lines=pdf.splitTextToSize(String(value),79);txt(lines.slice(0,2),x,yy+5.5,9,ink,true);}
 rect(19,270,172,7,pale);txt('VOLUNTARY REVIEW  /  NOT A STATUTORY INSPECTION',22,275,7,muted,true);
-txt('EDUCONNECT  /  EDUCATION REVIEW',19,286,7,muted,true);txt(String(ref)+'  /  01',191,286,7,muted,false,{align:'right'});
+txt('EDUCONNECT  /  EDUCATION REVIEW  /  EDITION 2026.10B',19,286,7,muted,true);txt(String(ref)+'  /  01',191,286,7,muted,false,{align:'right'});
 next();section(1,'Inspection judgements');
 para('A summary of the review outcomes across the key areas considered.',{size:9.5});
 const areas=[['Teaching and learning',d.teaching_grade],['Behaviour and standards',d.behaviour_grade],['Leadership and management',d.leadership_grade],['Safeguarding and online safety',d.safeguarding_grade],['Curriculum quality',d.curriculum_grade],['Personal development and inclusion',d.development_grade]];
@@ -350,7 +350,39 @@ return pdf.output('blob');
 }
 document.addEventListener('submit',async e=>{if(e.target.id!=='createInspection')return;e.preventDefault();if(!admin)return;const d=Object.fromEntries(new FormData(e.target).entries()),msg=document.getElementById('inspectionMessage'),btn=document.getElementById('publishInspection');btn.disabled=true;msg.textContent='Generating report…';try{const r=await db.from('schools').select('id,name,reference_number,logo_url').eq('id',d.school_id).eq('status','approved').single();if(r.error)throw r.error;const ref='EDU-INS-'+Date.now().toString(36).toUpperCase(),pdf=await generateInspectionPdf(r.data,d,ref),path=d.school_id+'/'+ref+'.pdf';const up=await db.storage.from('inspection-reports').upload(path,pdf,{contentType:'application/pdf'});if(up.error)throw up.error;const url=db.storage.from('inspection-reports').getPublicUrl(path).data.publicUrl;const saved=await db.from('inspections').insert({school_id:d.school_id,inspection_date:d.inspection_date,inspector_name:d.inspector_name,report_number:ref,rating:d.rating,summary:d.summary,report:d,report_pdf_url:url,published_at:new Date().toISOString()});if(saved.error)throw saved.error;msg.innerHTML='Published successfully. <a target="_blank" rel="noopener" href="'+safe(url)+'">View PDF ↗</a>';e.target.reset();}catch(err){msg.textContent='Publication failed: '+(err.message||String(err));}finally{btn.disabled=false;}});
 
-document.addEventListener('click',async e=>{if(e.target.id!=='refreshExistingReports'||!admin)return;const btn=e.target,status=document.getElementById('refreshReportsStatus');if(!confirm('Update all published inspection PDFs? Each original will be backed up first. Report numbers, dates, findings and links will stay unchanged.'))return;btn.disabled=true;let completed=0;try{const r=await db.from('inspections').select('id,school_id,report_number,report_pdf_url,inspection_date,inspector_name,rating,summary,report,schools(name,reference_number)').not('report_pdf_url','is',null);if(r.error)throw r.error;for(const i of r.data||[]){status.textContent='Updating '+(completed+1)+' of '+r.data.length+': '+i.report_number;const path=i.school_id+'/'+i.report_number+'.pdf';const backupPath='backups/'+i.school_id+'/'+i.report_number+'.pdf';const old=await db.storage.from('inspection-reports').download(path);if(old.error)throw Error('Could not download original '+i.report_number+': '+old.error.message);const backup=await db.storage.from('inspection-reports').upload(backupPath,old.data,{contentType:'application/pdf',upsert:false});if(backup.error&&!/already exists|duplicate/i.test(backup.error.message))throw Error('Backup failed for '+i.report_number+': '+backup.error.message);const d={...(i.report||{}),inspection_date:i.inspection_date,inspector_name:i.inspector_name,rating:i.rating,summary:i.summary};const pdf=await generateInspectionPdf({name:i.schools?.name||'School',reference_number:i.schools?.reference_number},d,i.report_number);const up=await db.storage.from('inspection-reports').upload(path,pdf,{contentType:'application/pdf',upsert:true,cacheControl:'0'});if(up.error)throw Error('Update failed for '+i.report_number+': '+up.error.message);completed++;}status.textContent='Updated '+completed+' report(s). Existing PDF links are unchanged. Browser caches may take time to refresh.';}catch(err){status.textContent='Updated '+completed+' report(s) before stopping: '+err.message;}finally{btn.disabled=false;}});
+document.addEventListener('click',async e=>{
+if(e.target.id!=='refreshExistingReports'||!admin)return;
+const btn=e.target,status=document.getElementById('refreshReportsStatus'),edition='2026.10B';
+if(!confirm('Regenerate published inspection PDFs using EduConnect report template '+edition+'? Original PDFs are backed up, and links and findings stay unchanged.'))return;
+btn.disabled=true;let completed=0;
+try{
+ const r=await db.from('inspections').select('id,school_id,report_number,report_pdf_url,inspection_date,inspector_name,rating,summary,report,schools(name,reference_number)').not('report_pdf_url','is',null);
+ if(r.error)throw r.error;
+ if(!r.data?.length){status.textContent='No published reports found to update. Template '+edition+'.';return;}
+ const hash=async blob=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await blob.arrayBuffer()))).map(x=>x.toString(16).padStart(2,'0')).join('');
+ for(const i of r.data){
+  status.textContent='Template '+edition+': generating '+(completed+1)+' of '+r.data.length+' ('+i.report_number+')';
+  const path=i.school_id+'/'+i.report_number+'.pdf',backupPath='backups/'+path;
+  const old=await db.storage.from('inspection-reports').download(path);
+  if(old.error)throw Error('Cannot read original '+i.report_number+': '+old.error.message);
+  const backup=await db.storage.from('inspection-reports').upload(backupPath,old.data,{contentType:'application/pdf',upsert:false});
+  if(backup.error&&!/already exists|duplicate/i.test(backup.error.message))throw Error('Backup failed for '+i.report_number+': '+backup.error.message);
+  const d={...(i.report||{}),inspection_date:i.inspection_date,inspector_name:i.inspector_name,rating:i.rating,summary:i.summary};
+  const pdf=await generateInspectionPdf({name:i.schools?.name||'School',reference_number:i.schools?.reference_number},d,i.report_number);
+  const expected=await hash(pdf);
+  const up=await db.storage.from('inspection-reports').upload(path,pdf,{contentType:'application/pdf',upsert:true,cacheControl:'0'});
+  if(up.error)throw Error('Upload failed for '+i.report_number+': '+up.error.message);
+  const check=await db.storage.from('inspection-reports').download(path);
+  if(check.error)throw Error('Upload succeeded but verification download failed for '+i.report_number+': '+check.error.message);
+  if(await hash(check.data)!==expected)throw Error('Uploaded PDF differs from the generated template for '+i.report_number+'. Check storage caching or permissions.');
+  completed++;
+ }
+ const publicUrl=r.data[0]?.report_pdf_url;
+ status.textContent='Verified '+completed+' of '+r.data.length+' report(s) with EduConnect template '+edition+'. ';
+ if(publicUrl){const link=document.createElement('a');link.href=publicUrl+(publicUrl.includes('?')?'&':'?')+'v='+Date.now();link.target='_blank';link.rel='noopener noreferrer';link.textContent='Open updated PDF (fresh link)';status.appendChild(link);}
+}catch(err){status.textContent='Verified '+completed+' report(s) before stopping. '+err.message+' (Template '+edition+')';}
+finally{btn.disabled=false;}
+});
 function profileShell(type){return header(type,'Verified educonnect directory record')+layout('<div id="entityProfile">Loading profile…</div>');}
 function profileLogo(url,name){return url?`<img src="${safe(url)}" alt="${safe(name)} logo" style="width:110px;height:110px;object-fit:contain;max-width:100%;margin:8px 0 20px">`:'';}
 function profileLink(type,id){return location.origin+location.pathname+'#'+type+':'+encodeURIComponent(id);}
