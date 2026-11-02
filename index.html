@@ -1250,20 +1250,6 @@ document.addEventListener('click',e=>{const toggle=e.target.closest('#ecNotifica
 const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementById('ecNotificationToggle')&&!ecNotificationsLoading){if(!document.getElementById('ecNotificationToggle').dataset.ready){document.getElementById('ecNotificationToggle').dataset.ready='1';ecNotificationsEnsure()}}});ecNotificationObserver.observe(document.getElementById('app'),{childList:true,subtree:true});ecNotificationsEnsure();
 
 
-<style>
-.ec-explicit-reporting{padding:20px 12px;margin-bottom:24px;border:1px solid #d9e7de;border-radius:16px;background:#f8fbf9;overflow-x:auto;text-align:center}
-.ec-explicit-reporting h3{margin:0 0 20px;color:#174b3b}
-.ec-report-forest{display:flex;justify-content:center;align-items:flex-start;gap:32px;min-width:max-content}
-.ec-report-branch,.ec-report-department{display:flex;flex-direction:column;align-items:center;position:relative;min-width:190px}
-.ec-report-cards{display:flex;gap:10px;justify-content:center;align-items:stretch}
-.ec-report-cards .ec-hierarchy-person{margin:0!important;min-width:180px}
-.ec-report-role-label{border:1px solid #b9d8c6;background:#fff;border-radius:12px;padding:14px 20px;font-weight:750;color:#225b47}
-.ec-report-children{display:flex;justify-content:center;gap:18px;padding-top:28px;position:relative}
-.ec-report-children:before{content:'';position:absolute;top:0;height:28px;left:50%;border-left:2px solid #91b9a4}
-.ec-report-children>.ec-report-branch:before,.ec-report-children>.ec-report-department:before{content:'';position:absolute;top:-28px;height:28px;left:50%;border-left:2px solid #91b9a4}
-.ec-report-children:has(> :nth-child(2)):after{content:'';position:absolute;top:0;left:calc(100% / var(--unused, 2) / 2);right:calc(100% / var(--unused, 2) / 2);border-top:2px solid #91b9a4}
-.ec-chart-with-explicit-reporting>.ec-hierarchy-node .ec-hierarchy-rank-connector,.ec-chart-with-explicit-reporting>.ec-hierarchy-node .ec-hierarchy-branch{display:none}
-</style>
 /* Planned positions enhancement: existing staff cards and organisation controls are preserved. */
 (function(){
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1297,61 +1283,21 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     const before=[...area.querySelectorAll(':scope > .ec-hierarchy-rank')].find(g=>Number(g.dataset.rankId)<rank);
     if(before)area.insertBefore(group,before);else area.appendChild(group);
    }
-   group.querySelector('.ec-hierarchy-rank-people').insertAdjacentHTML('beforeend',card(p,missing,v));
+   const reportTo=p.reports_to_position_id?(positions.data||[]).find(x=>x.id===p.reports_to_position_id)?.title:p.reports_to_department_id?(depts.data||[]).find(x=>x.id===p.reports_to_department_id)?.name+' department':null;
+   const cardHtml=card(p,missing,v);
+   group.querySelector('.ec-hierarchy-rank-people').insertAdjacentHTML('beforeend',reportTo?cardHtml.replace('</small></span>','</small><small class="ec-position-reports">↳ Reports to '+esc(reportTo)+'</small></span>'):cardHtml);
   }
-  // Render explicit reporting relationships as isolated branches, never as a
-  // blanket connector across unrelated rank peers or departments.
-  const plannedRoles=positions.data||[];
-  if(plannedRoles.some(p=>p.reports_to_position_id||p.reports_to_department_id)){
-   const chart=root.querySelector('.ec-org-chart-hierarchy');
-   if(chart){
-    const roleCards=new Map();
-    const nodes=[...chart.querySelectorAll('.ec-hierarchy-node')];
-    for(const p of plannedRoles){
-     const dept=(depts.data||[]).find(d=>d.id===p.department_id);
-     const node=nodes.find(n=>n.querySelector(':scope > .ec-hierarchy-head strong')?.textContent.trim()===dept?.name);
-     const cards=node?[...node.querySelectorAll(':scope > .ec-hierarchy-staff .ec-hierarchy-rank-people > .ec-hierarchy-person')].filter(el=>{
-      const title=el.querySelector('.ec-hierarchy-person-info small')?.textContent?.split(' · ')[0]?.trim();
-      const vacancy=el.classList.contains('ec-position-vacant')?el.querySelector('.ec-hierarchy-person-info strong')?.textContent?.replace(/ ×\\d+$/,'').trim():null;
-      const rank=Number(el.closest('[data-rank-id]')?.dataset.rankId);
-      return rank===Number(p.rank_code)&&(title===p.title||vacancy===p.title);
-     }):[];
-     roleCards.set(p.id,cards);
-    }
-    const involved=new Set(plannedRoles.filter(p=>p.reports_to_position_id||p.reports_to_department_id).map(p=>p.id));
-    for(const p of plannedRoles)if(plannedRoles.some(x=>x.reports_to_position_id===p.id))involved.add(p.id);
-    const wrapper=document.createElement('section');wrapper.className='ec-explicit-reporting';wrapper.innerHTML='<h3>Reporting structure</h3>';
-    const forest=document.createElement('div');forest.className='ec-report-forest';wrapper.appendChild(forest);
-    const renderRole=(p,visited=new Set())=>{
-     if(visited.has(p.id))return null;
-     const seen=new Set(visited);seen.add(p.id);
-     const branch=document.createElement('div');branch.className='ec-report-branch';
-     const cards=document.createElement('div');cards.className='ec-report-cards';
-     for(const cardEl of roleCards.get(p.id)||[])cards.appendChild(cardEl);
-     if(!cards.children.length){const fallback=document.createElement('div');fallback.className='ec-report-role-label';fallback.textContent=p.title;cards.appendChild(fallback);}
-     branch.appendChild(cards);
-     const children=plannedRoles.filter(x=>x.reports_to_position_id===p.id).sort((x,y)=>Number(y.rank_code)-Number(x.rank_code));
-     if(children.length){
-      const group=document.createElement('div');group.className='ec-report-children';
-      for(const child of children){const childNode=renderRole(child,seen);if(childNode)group.appendChild(childNode);}
-      if(group.children.length)branch.appendChild(group);
-     }
-     return branch;
-    };
-    const roots=plannedRoles.filter(p=>involved.has(p.id)&&(!p.reports_to_position_id||!plannedRoles.some(x=>x.id===p.reports_to_position_id)));
-    for(const p of roots.filter(p=>!p.reports_to_department_id).sort((x,y)=>Number(y.rank_code)-Number(x.rank_code))){const node=renderRole(p);if(node)forest.appendChild(node);}
-    const byDept=new Map();
-    for(const p of roots.filter(p=>p.reports_to_department_id)){const arr=byDept.get(p.reports_to_department_id)||[];arr.push(p);byDept.set(p.reports_to_department_id,arr);}
-    for(const [deptId,group] of byDept){
-     const department=document.createElement('div');department.className='ec-report-department';
-     const heading=document.createElement('div');heading.className='ec-report-role-label';heading.textContent=(depts.data||[]).find(d=>d.id===deptId)?.name||'Department';department.appendChild(heading);
-     const children=document.createElement('div');children.className='ec-report-children';
-     for(const p of group.sort((x,y)=>Number(y.rank_code)-Number(x.rank_code))){const node=renderRole(p);if(node)children.appendChild(node);}
-     department.appendChild(children);forest.appendChild(department);
-    }
-    if(forest.children.length)chart.prepend(wrapper);
-    // Suppress connector styling on the remaining conventional hierarchy.
-    chart.classList.add('ec-chart-with-explicit-reporting');
+  // Annotate filled positions too, so reporting remains visible after recruitment.
+  for(const p of positions.data||[]){
+   const reportTo=p.reports_to_position_id?(positions.data||[]).find(x=>x.id===p.reports_to_position_id)?.title:p.reports_to_department_id?(depts.data||[]).find(x=>x.id===p.reports_to_department_id)?.name+' department':null;
+   if(!reportTo)continue;
+   const dept=(depts.data||[]).find(d=>d.id===p.department_id);
+   const node=[...root.querySelectorAll('.ec-hierarchy-node')].find(n=>n.querySelector(':scope > .ec-hierarchy-head strong')?.textContent.trim()===dept?.name);
+   if(!node)continue;
+   for(const info of node.querySelectorAll(':scope > .ec-hierarchy-staff .ec-hierarchy-person-info')){
+    const role=info.querySelector('small')?.textContent?.split(' · ')[0]?.trim();
+    if(role!==p.title||info.querySelector('.ec-position-reports'))continue;
+    const line=document.createElement('small');line.className='ec-position-reports';line.textContent='↳ Reports to '+reportTo;info.appendChild(line);
    }
   }
   if(publicView)return;
