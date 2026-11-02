@@ -502,7 +502,7 @@ body:has([data-school-hub-panel="timetable"]) [data-school-hub-panel="timetable"
 .ec-org-map-canvas{height:610px;overflow:auto;position:relative;background-image:linear-gradient(#dce9e044 1px,transparent 1px),linear-gradient(90deg,#dce9e044 1px,transparent 1px);background-size:20px 20px}
 .ec-org-map-cards{position:relative;width:1600px;height:1200px}
 .ec-org-map-lines{position:absolute;top:0;left:0;width:1600px;height:1200px;pointer-events:none}
-.ec-org-map-card{position:absolute;width:240px;min-height:120px;box-sizing:border-box;display:flex;flex-direction:column;gap:7px;align-items:flex-start;text-align:left;background:#fff;border:1px solid #c9dfd0;border-radius:12px;padding:15px;cursor:grab;touch-action:none;user-select:none;color:#194d3c}
+.ec-org-map-card{position:absolute;width:240px;min-height:120px;height:auto;box-sizing:border-box;display:flex;flex-direction:column;gap:7px;align-items:flex-start;text-align:left;background:#fff;border:1px solid #c9dfd0;border-radius:12px;padding:15px;cursor:grab;touch-action:none;user-select:none;color:#194d3c}
 .ec-org-map-card.vacant{border-style:dashed}
 .ec-org-map-card:active{cursor:grabbing}
 .ec-org-map-card small{font-size:12px;color:#60786c}
@@ -1571,7 +1571,15 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      node.style.top=(loc?Math.round(Number(loc.y)/20)*20:60+Math.floor((placed.length+i)/4)*160)+'px';
      layer.appendChild(node);
     }
+    const snapCardSizes=()=>{
+     for(const node of layer.querySelectorAll('.ec-org-map-card')){
+      node.style.height='auto';
+      const required=Math.max(120,node.scrollHeight);
+      node.style.height=(Math.ceil(required/20)*20)+'px';
+     }
+    };
     const redraw=()=>{
+     snapCardSizes();
      svg.replaceChildren();
      const mapWidth=Math.max(1600,layer.scrollWidth),mapHeight=Math.max(1200,layer.scrollHeight);
      svg.setAttribute('viewBox','0 0 '+mapWidth+' '+mapHeight);
