@@ -488,6 +488,8 @@ body:has([data-school-hub-panel="timetable"]) [data-school-hub-panel="timetable"
 .ec-report-lines{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:visible}
 .ec-reporting-integrated .ec-hierarchy-rank-connector,.ec-reporting-integrated .ec-hierarchy-branch{visibility:hidden}
 .ec-reporting-integrated .ec-hierarchy-rank-people:before,.ec-reporting-integrated .ec-hierarchy-person:before{display:none!important}
+.ec-reporting-integrated .ec-hierarchy-person,.ec-reporting-integrated .ec-hierarchy-head{position:relative;z-index:3}
+.ec-reporting-integrated .ec-report-lines{z-index:1}
 </style>
 </head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Find MATs</button><button data-page="org-jobs" onclick="go('org-jobs')">Find a job</button><button data-page="community" onclick="go('community')">Find People</button><button data-page="resources" onclick="go('resources')">Resources Library</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('learning')">EduCareer</button><button onclick="go('providers')">Education providers</button><button onclick="go('standards')">Standards & inspections</button><button onclick="go('suggestions')">Suggestions</button><button onclick="go('book-demo')">Book a demo</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('resources')">Resources Library</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
 const schools=[];
@@ -1333,6 +1335,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     const rect=el=>{const r=el.getBoundingClientRect();return {l:r.left-base.left+chart.scrollLeft,t:r.top-base.top+chart.scrollTop,r:r.right-base.left+chart.scrollLeft,b:r.bottom-base.top+chart.scrollTop};};
     const cards=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el.getClientRects().length);
     const obstacles=cards.map(rect);
+    // Keep actual staff/role cards above connector paths, so a connector never overlays their content.
     const edges=[];
     for(const p of reportingPositions){
      const parent=p.reports_to_position_id?(roleElements.get(p.reports_to_position_id)||[])[0]:p.reports_to_department_id?findDept(p.reports_to_department_id)?.querySelector(':scope > .ec-hierarchy-head'):null;
@@ -1342,6 +1345,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     // cannot cross cards, even if departments have different widths.
     const right=Math.max(chart.scrollWidth,...obstacles.map(o=>o.r))+28;
     const width=right+Math.max(48,edges.length*10+16);
+    chart.style.paddingRight=Math.max(48,edges.length*10+16)+'px';
     svg.setAttribute('width',String(width));svg.setAttribute('height',String(chart.scrollHeight));
     svg.style.width=width+'px';svg.style.height=chart.scrollHeight+'px';
     const clear=(x1,y1,x2,y2,ignore=[])=>!obstacles.some(o=>{
@@ -1363,7 +1367,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       // Connect via card right edges and a unique vertical lane.
       const lane=right+i*10;
       const sy=(a.t+a.b)/2,ty=(b.t+b.b)/2;
-      if(!clear(a.r+5,sy,lane,sy)||!clear(lane,ty,b.r+5,ty))return;
+      // Do not discard a saved reporting relationship when a row is crowded.
       d='M'+a.r+' '+sy+' H'+lane+' V'+ty+' H'+b.r;
      }
      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
