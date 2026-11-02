@@ -494,7 +494,23 @@ body:has([data-school-hub-panel="timetable"]) [data-school-hub-panel="timetable"
 .ec-reporting-integrated .ec-report-card-group{display:flex;flex:none;gap:12px;align-items:stretch}
 .ec-reporting-integrated .ec-report-card-group>.ec-hierarchy-person{flex:none!important;width:190px;max-width:240px}
 </style>
-</head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Find MATs</button><button data-page="org-jobs" onclick="go('org-jobs')">Find a job</button><button data-page="community" onclick="go('community')">Find People</button><button data-page="resources" onclick="go('resources')">Resources Library</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('learning')">EduCareer</button><button onclick="go('providers')">Education providers</button><button onclick="go('standards')">Standards & inspections</button><button onclick="go('suggestions')">Suggestions</button><button onclick="go('book-demo')">Book a demo</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('resources')">Resources Library</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
+<style>
+/* Reporting branches reserve their own space; connectors cannot cross cards. */
+.ec-planned-report-tree{background:#fff;border:1px solid #d4e4da;border-radius:14px;padding:20px;margin:10px 0 24px;width:max-content;min-width:100%;box-sizing:border-box}
+.ec-planned-report-tree h3{margin:0 0 6px;color:#184b3b}
+.ec-report-tree-forest,.ec-report-tree-tier{display:flex;align-items:flex-start;justify-content:center;gap:28px;width:max-content;min-width:100%}
+.ec-report-tree-forest{gap:55px;margin-top:24px}
+.ec-report-tree-node{display:flex;flex-direction:column;align-items:center;position:relative;flex:none}
+.ec-report-tree-card{position:relative;z-index:1;display:flex;justify-content:center}
+.ec-report-tree-card>.ec-hierarchy-person{width:230px;max-width:230px;min-height:90px;margin:0!important;box-sizing:border-box}
+.ec-report-tree-placeholder{width:230px;box-sizing:border-box;padding:18px;border:1px dashed #cbded1;border-radius:12px;color:#184b3b;background:#f8fbf9;text-align:center}
+.ec-report-tree-tier{position:relative;padding-top:34px;margin-top:0;min-width:0}
+.ec-report-tree-tier:before{content:'';position:absolute;top:16px;left:50%;height:18px;border-left:2px solid #8bb69c}
+.ec-report-tree-tier>.ec-report-tree-node:before{content:'';position:absolute;top:-18px;left:50%;height:18px;border-left:2px solid #8bb69c}
+.ec-report-tree-tier:has(>.ec-report-tree-node:nth-child(2)):after{content:'';position:absolute;top:16px;left:calc(115px);right:calc(115px);border-top:2px solid #8bb69c}
+.ec-report-tree-node>.ec-report-tree-tier~.ec-report-tree-tier{margin-top:20px}
+.ec-planned-report-tree .ec-hierarchy-person:before,.ec-planned-report-tree .ec-hierarchy-rank-people:before{display:none!important}
+</style></head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Find MATs</button><button data-page="org-jobs" onclick="go('org-jobs')">Find a job</button><button data-page="community" onclick="go('community')">Find People</button><button data-page="resources" onclick="go('resources')">Resources Library</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('learning')">EduCareer</button><button onclick="go('providers')">Education providers</button><button onclick="go('standards')">Standards & inspections</button><button onclick="go('suggestions')">Suggestions</button><button onclick="go('book-demo')">Book a demo</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('resources')">Resources Library</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
 const schools=[];
 const documents=[{id:'primary',category:'Curriculum',title:'Primary curriculum framework',desc:'Learning aims, subject expectations and sample timetabling for primary schools.',sections:[['Purpose','A flexible framework for primary schools to plan purposeful lessons and age-appropriate learning experiences.'],['Core learning areas','English and communication, mathematics, science, digital literacy, humanities and creative learning.'],['Implementation','Publish a curriculum overview, plan progressive learning objectives and review pupil experience each term.'],['Evidence for review','Sample lesson plans, timetables, resources and examples of pupil work created within the Roblox environment.']]},{id:'secondary',category:'Curriculum',title:'Secondary curriculum framework',desc:'Subject progression, assessment principles and enrichment for secondary schools.',sections:[['Purpose','A coherent secondary programme balancing knowledge, skills, creative work and student choice.'],['Core provision','English, mathematics, science, humanities, computing, creative subjects and personal development.'],['Assessment','Use transparent criteria, proportionate feedback and opportunities for students to demonstrate progress.'],['Quality checks','Review subject coverage, teaching consistency and accessibility of learning materials.']]},{id:'post16',category:'Curriculum',title:'Post-16 and vocational framework',desc:'Programme planning for sixth forms, colleges and specialist providers.',sections:[['Programme design','Set out the purpose, entry expectations, timetable and outcomes of each course.'],['Learning pathways','Offer academic, creative, technical or vocational pathways appropriate to your Roblox setting.'],['Review','Gather learner feedback and examples of project work to evaluate programme quality.']]},{id:'safeguarding',category:'Policy',title:'Safeguarding and online conduct',desc:'Minimum expectations for safe communication, reporting and moderation.',sections:[['Scope','Participating schools must follow Roblox platform rules and applicable safeguarding obligations.'],['Conduct','No requests for private personal details, off-platform contact or inappropriate conversations with young users.'],['Reporting','Publish clear reporting routes, appoint responsible moderators and escalate serious concerns to appropriate real-world services.'],['Review','Review moderation logs and the policy regularly.']]},{id:'conduct',category:'Policy',title:'Staff code of conduct',desc:'Professional expectations for school leaders, teachers and volunteers.',sections:[['Professional behaviour','Treat all community members respectfully, avoid favouritism and use approved communication channels.'],['Accountability','Define staff responsibilities, moderation permissions and an accessible complaints process.'],['Conflicts of interest','Disclose relevant commercial or personal interests when making decisions.']]},{id:'admissions',category:'Policy',title:'Admissions and inclusion',desc:'Fair access, transparent entry criteria and inclusive participation.',sections:[['Admissions','Publish clear entry requirements and avoid arbitrary or discriminatory selection.'],['Accessibility','Offer accessible ways to participate and reasonable alternatives where possible.'],['Appeals','Provide a straightforward way to question an admissions decision.']]},{id:'inspection',category:'Guidance',title:'School review handbook',desc:'What inspectors consider, how evidence is reviewed and how outcomes are published.',sections:[['Before the review','Schools receive a scope statement and an evidence checklist.'],['Review areas','Educational experience, leadership, community safety, inclusion and technical reliability.'],['Outcome','A written report highlights strengths, development priorities and a follow-up plan.'],['Fairness','Schools can respond to factual inaccuracies before publication.']]},{id:'registration',category:'Guidance',title:'School registration guide',desc:'Eligibility, required information and the review process for new applicants.',sections:[['Who can apply','Roblox schools and education providers willing to follow educonnect participation standards.'],['What to prepare','School name, Roblox group, leadership contact, school phase and a brief description of provision.'],['What happens next','An educonnect reviewer checks the submission before a school can be listed as registered.']]}];
 const app=document.getElementById('app');let current='home',filter='All',query='';function toggleNav(){let n=document.getElementById('nav');n.classList.toggle('open');document.getElementById('mobileToggle').setAttribute('aria-expanded',n.classList.contains('open'))}const ecDraftPrefix='ec-draft-v1:';function ecDraftKey(form){const page=current||location.hash.slice(1)||'home';return ecDraftPrefix+page+':'+(form.id||form.getAttribute('data-draft-form')||Array.from(document.forms).indexOf(form));}function ecSaveDrafts(){document.querySelectorAll('form').forEach(f=>{if(f.closest('.ec-auth-page')||f.dataset.noDraft==='true')return;const data={};f.querySelectorAll('input,textarea,select').forEach((el,i)=>{if(el.disabled||['password','file','hidden','submit','button'].includes(el.type)||el.name==='recipient')return;const key=el.name||el.id||String(i);data[key]=el.type==='checkbox'?el.checked:el.value;});if(Object.keys(data).length)try{sessionStorage.setItem(ecDraftKey(f),JSON.stringify(data))}catch(e){}});}function ecRestoreDrafts(){document.querySelectorAll('form').forEach(f=>{if(f.closest('.ec-auth-page')||f.dataset.noDraft==='true')return;let data;try{data=JSON.parse(sessionStorage.getItem(ecDraftKey(f))||'null')}catch(e){}if(!data)return;f.querySelectorAll('input,textarea,select').forEach((el,i)=>{if(el.disabled||['password','file','hidden','submit','button'].includes(el.type)||el.name==='recipient')return;const key=el.name||el.id||String(i);if(!(key in data)||el.value&&el.value!==el.defaultValue)return;if(el.type==='checkbox')el.checked=!!data[key];else el.value=data[key];});});}document.addEventListener('input',e=>{if(e.target.closest('form'))ecSaveDrafts();});document.addEventListener('change',e=>{if(e.target.closest('form'))ecSaveDrafts();});window.addEventListener('pagehide',ecSaveDrafts);document.addEventListener('submit',e=>{const f=e.target;if(!f||!f.matches('form'))return;setTimeout(()=>{if(!f.isConnected||f.querySelector('[role=status]')?.textContent?.toLowerCase().includes('success')){try{sessionStorage.removeItem(ecDraftKey(f))}catch(e){}}},1200);});const ecDraftObserver=new MutationObserver(()=>{if(window.ecDraftRestoreQueued)return;window.ecDraftRestoreQueued=true;queueMicrotask(()=>{window.ecDraftRestoreQueued=false;ecRestoreDrafts();});});ecDraftObserver.observe(document.getElementById('app'),{childList:true,subtree:true});
@@ -1312,128 +1328,69 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    }
    group.querySelector('.ec-hierarchy-rank-people').insertAdjacentHTML('beforeend',card(p,missing,v));
   }
-  // Connect reporting relationships inside the existing department/rank chart.
-  // Use SVG geometry so only explicitly configured relationships get lines.
+  // Render planned reporting relationships as a nested tree, not an SVG
+  // overlay on unrelated department/rank rows. CSS connectors can only run
+  // through reserved gaps between parent and child groups.
   const reportingPositions=positions.data||[];
   const chart=root.querySelector('.ec-org-chart-hierarchy');
-  if(chart&&reportingPositions.some(p=>p.reports_to_position_id||p.reports_to_department_id)){
-   chart.classList.add('ec-reporting-integrated');
-   const deptNodes=[...chart.querySelectorAll('.ec-hierarchy-node')];
-   const findDept=deptId=>{
-    const name=(depts.data||[]).find(d=>d.id===deptId)?.name;
-    return deptNodes.find(n=>n.querySelector(':scope > .ec-hierarchy-head strong')?.textContent.trim()===name);
-   };
-   const roleElements=new Map();
+  if(chart&&reportingPositions.length){
+   const inner=chart.querySelector('.ec-chart-inner')||chart;
+   const tree=document.createElement('section');
+   tree.className='ec-planned-report-tree';
+   tree.innerHTML='<h3>Reporting structure</h3><p class="small">Reporting relationships determine branches. Rank IDs determine tiers within each branch.</p>';
+   const byId=new Map(reportingPositions.map(p=>[p.id,p]));
+   const cards=new Map();
    for(const p of reportingPositions){
-    const node=findDept(p.department_id);
-    const matches=node?[...node.querySelectorAll(':scope > .ec-hierarchy-staff .ec-hierarchy-rank-people > .ec-hierarchy-person')].filter(el=>{
+    const dept=(depts.data||[]).find(d=>d.id===p.department_id);
+    const node=[...chart.querySelectorAll('.ec-hierarchy-node')].find(n=>n.querySelector(':scope > .ec-hierarchy-head strong')?.textContent.trim()===dept?.name);
+    const matches=node?[...node.querySelectorAll('.ec-hierarchy-rank-people > .ec-hierarchy-person')].filter(el=>{
      const info=el.querySelector('.ec-hierarchy-person-info');
      const label=info?.querySelector('small')?.textContent?.split(' · ')[0]?.trim();
      const title=info?.querySelector('strong')?.textContent?.replace(/ ×\\d+$/,'').trim();
      return Number(el.closest('[data-rank-id]')?.dataset.rankId)===Number(p.rank_code)&&(label===p.title||title===p.title);
     }):[];
-    roleElements.set(p.id,matches);
+    if(matches.length){cards.set(p.id,matches[0]);matches[0].remove();}
    }
-   // Existing layout must be allowed to settle before calculating connectors.
-   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-   svg.classList.add('ec-report-lines');svg.setAttribute('aria-hidden','true');chart.prepend(svg);
-   // Group direct reports within their existing department and rank row.
-   // Position each group beneath its manager instead of routing across the chart.
-   const reportingGroups=new Map();
+   const children=new Map();
    for(const p of reportingPositions){
-    if(!p.reports_to_position_id)continue;
-    const manager=(roleElements.get(p.reports_to_position_id)||[])[0];
-    if(!manager)continue;
-    for(const child of roleElements.get(p.id)||[]){
-     const row=child.closest('.ec-hierarchy-rank-people');
-     if(!row)continue;
-     const k=p.reports_to_position_id+'|'+p.department_id+'|'+(row.closest('[data-rank-id]')?.dataset.rankId||'');
-     if(!reportingGroups.has(k))reportingGroups.set(k,{manager,row,children:[]});
-     reportingGroups.get(k).children.push(child);
+    const parent=byId.get(p.reports_to_position_id);
+    if(parent&&parent.id!==p.id&&Number(parent.rank_code)>Number(p.rank_code)){
+     if(!children.has(parent.id))children.set(parent.id,[]);
+     children.get(parent.id).push(p);
     }
    }
-   for(const group of reportingGroups.values()){
-    const holder=document.createElement('div');
-    holder.className='ec-report-card-group';
-    group.row.appendChild(holder);
-    for(const child of group.children)holder.appendChild(child);
-    group.holder=holder;
-    group.row.classList.add('ec-report-aligned-row');
-   }
-   const align=()=>{
-    // Reserve space for whole sibling groups beneath their managers.
-    const rows=new Map();
-    for(const group of reportingGroups.values()){
-     if(!rows.has(group.row))rows.set(group.row,[]);
-     rows.get(group.row).push(group);
+   const rendered=new Set();
+   const build=(p,ancestry=new Set())=>{
+    if(ancestry.has(p.id)||rendered.has(p.id))return null;
+    rendered.add(p.id);
+    const next=new Set(ancestry);next.add(p.id);
+    const node=document.createElement('div');node.className='ec-report-tree-node';
+    const own=document.createElement('div');own.className='ec-report-tree-card';
+    const cardEl=cards.get(p.id);
+    if(cardEl)own.appendChild(cardEl);
+    else own.innerHTML='<div class="ec-report-tree-placeholder">'+esc(p.title)+'</div>';
+    node.appendChild(own);
+    const descendants=(children.get(p.id)||[]).sort((a,b)=>Number(b.rank_code)-Number(a.rank_code));
+    const tiers=new Map();
+    for(const child of descendants){
+     const rank=Number(child.rank_code);
+     if(!tiers.has(rank))tiers.set(rank,[]);
+     tiers.get(rank).push(child);
     }
-    for(const [row,groups] of rows){
-     for(const g of groups)g.holder.style.marginLeft='0px';
-     const rowLeft=row.getBoundingClientRect().left;
-     let cursor=0;
-     for(const g of groups.sort((a,b)=>a.manager.getBoundingClientRect().left-b.manager.getBoundingClientRect().left)){
-      const r=g.manager.getBoundingClientRect();
-      const desired=Math.max(cursor,(r.left+r.width/2-rowLeft)-g.holder.offsetWidth/2);
-      g.holder.style.marginLeft=Math.max(0,desired-cursor)+'px';
-      cursor=desired+g.holder.offsetWidth+24;
-     }
-     row.style.minWidth=Math.ceil(cursor)+'px';
+    for(const [rank,group] of tiers){
+     const tier=document.createElement('div');tier.className='ec-report-tree-tier';
+     tier.dataset.rankId=String(rank);
+     for(const child of group){const childNode=build(child,next);if(childNode)tier.appendChild(childNode);}
+     if(tier.children.length)node.appendChild(tier);
     }
+    return node;
    };
-   const draw=()=>{
-    align();
-    svg.replaceChildren();
-    const base=chart.getBoundingClientRect();
-    const rect=el=>{const r=el.getBoundingClientRect();return {l:r.left-base.left+chart.scrollLeft,t:r.top-base.top+chart.scrollTop,r:r.right-base.left+chart.scrollLeft,b:r.bottom-base.top+chart.scrollTop};};
-    const groups=new Map();
-    for(const p of reportingPositions){
-     const parent=p.reports_to_position_id?(roleElements.get(p.reports_to_position_id)||[])[0]:p.reports_to_department_id?findDept(p.reports_to_department_id)?.querySelector(':scope > .ec-hierarchy-head'):null;
-     if(!parent)continue;
-     const children=roleElements.get(p.id)||[];
-     if(!groups.has(parent))groups.set(parent,[]);
-     groups.get(parent).push(...children.filter(child=>child!==parent));
-    }
-    const width=chart.scrollWidth,height=chart.scrollHeight;
-    svg.setAttribute('width',String(width));svg.setAttribute('height',String(height));
-    svg.style.width=width+'px';svg.style.height=height+'px';
-    const path=d=>{
-     const el=document.createElementNS('http://www.w3.org/2000/svg','path');
-     el.setAttribute('d',d);el.setAttribute('fill','none');el.setAttribute('stroke','#79a98f');
-     el.setAttribute('stroke-width','2');el.setAttribute('stroke-linecap','round');el.setAttribute('stroke-linejoin','round');svg.appendChild(el);
-    };
-    for(const [parent,children] of groups){
-     if(!children.length)continue;
-     const a=rect(parent),px=(a.l+a.r)/2;
-     // Each rank has its own horizontal bus. Never route through a row of cards.
-     const ranks=new Map();
-     for(const child of children){
-      const row=child.closest('[data-rank-id]');
-      const key=row?.dataset.rankId||'other';
-      if(!ranks.has(key))ranks.set(key,[]);
-      ranks.get(key).push(child);
-     }
-     // Lower Rank IDs form their own reporting tiers, even for the same parent.
-     const rows=[...ranks.entries()].sort((a,b)=>Number(b[0])-Number(a[0])).map(x=>x[1]);
-     let previous={x:px,y:a.b};
-     for(const row of rows){
-      const bounds=row.map(rect),xs=bounds.map(b=>(b.l+b.r)/2);
-      const top=Math.min(...bounds.map(b=>b.t)),bottom=Math.max(...bounds.map(b=>b.b));
-      const busY=top-18,left=Math.min(...xs),right=Math.max(...xs);
-      const obstacles=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el!==parent&&!row.includes(el)).map(rect);
-      const clearV=(x,y1,y2)=>!obstacles.some(b=>x>b.l-10&&x<b.r+10&&Math.max(Math.min(y1,y2),b.t-10)<Math.min(Math.max(y1,y2),b.b+10));
-      const corridor=[previous.x,left-32,right+32,...obstacles.flatMap(b=>[b.l-20,b.r+20])].find(x=>clearV(x,previous.y+8,busY))??left-32;
-      const elbow=previous.y+8;
-      path('M'+previous.x+' '+previous.y+' V'+elbow+' H'+corridor+' V'+busY);
-      path('M'+Math.min(left,corridor)+' '+busY+' H'+Math.max(right,corridor));
-      for(let n=0;n<bounds.length;n++)path('M'+xs[n]+' '+busY+' V'+bounds[n].t);
-      // Start the next tier below the preceding cards, not through them.
-      previous={x:(left+right)/2,y:bottom+12};
-     }
-    }
-   };
-   requestAnimationFrame(draw);
-   // Avoid observing the SVG's own dimensions: that caused repeated redraws and layout jumps.
-   window.addEventListener('resize',draw,{passive:true});
+   const forest=document.createElement('div');forest.className='ec-report-tree-forest';
+   const roots=reportingPositions.filter(p=>!byId.has(p.reports_to_position_id)||Number(byId.get(p.reports_to_position_id)?.rank_code)<=Number(p.rank_code));
+   for(const p of roots){const n=build(p);if(n)forest.appendChild(n);}
+   for(const p of reportingPositions){if(!rendered.has(p.id)){const n=build(p);if(n)forest.appendChild(n);}}
+   tree.appendChild(forest);
+   inner.prepend(tree);
   }
   if(publicView)return;
   if(keepEditor)return;
