@@ -1316,64 +1316,62 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    }
    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
    svg.classList.add('ec-report-lines');svg.setAttribute('aria-hidden','true');chart.prepend(svg);
+   // Keep connected positions close together inside their existing rank rows.
+   // Moving cards within the row preserves department membership and rank ordering.
+   for(const p of reportingPositions){
+    if(!p.reports_to_position_id)continue;
+    const parent=(roleElements.get(p.reports_to_position_id)||[])[0];
+    if(!parent)continue;
+    const row=parent.closest('.ec-hierarchy-rank-people');
+    for(const child of roleElements.get(p.id)||[]){
+     if(child.parentElement===row)row.insertBefore(child,parent.nextSibling);
+    }
+   }
    const draw=()=>{
     svg.replaceChildren();
     const base=chart.getBoundingClientRect();
-    const width=chart.scrollWidth,height=chart.scrollHeight;
-    svg.setAttribute('width',String(width));svg.setAttribute('height',String(height));
     const rect=el=>{const r=el.getBoundingClientRect();return {l:r.left-base.left+chart.scrollLeft,t:r.top-base.top+chart.scrollTop,r:r.right-base.left+chart.scrollLeft,b:r.bottom-base.top+chart.scrollTop};};
-    // Treat every card and department header as a solid obstacle.
-    const obstacles=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el.getClientRects().length).map(rect);
-    const margin=9,step=12;
-    const blocked=(x,y)=>obstacles.some(o=>x>o.l-margin&&x<o.r+margin&&y>o.t-margin&&y<o.b+margin);
-    const line=(from,to)=>{
-     if(!from||!to||from===to)return;
+    const cards=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el.getClientRects().length);
+    const obstacles=cards.map(rect);
+    const edges=[];
+    for(const p of reportingPositions){
+     const parent=p.reports_to_position_id?(roleElements.get(p.reports_to_position_id)||[])[0]:p.reports_to_department_id?findDept(p.reports_to_department_id)?.querySelector(':scope > .ec-hierarchy-head'):null;
+     for(const child of roleElements.get(p.id)||[])if(parent&&child!==parent)edges.push([parent,child]);
+    }
+    // Reserve a side corridor for long-distance connections. The corridor
+    // cannot cross cards, even if departments have different widths.
+    const right=Math.max(chart.scrollWidth,...obstacles.map(o=>o.r))+28;
+    const width=right+Math.max(48,edges.length*10+16);
+    svg.setAttribute('width',String(width));svg.setAttribute('height',String(chart.scrollHeight));
+    svg.style.width=width+'px';svg.style.height=chart.scrollHeight+'px';
+    const clear=(x1,y1,x2,y2,ignore=[])=>!obstacles.some(o=>{
+     if(ignore.some(e=>e===o))return false;
+     if(Math.abs(y1-y2)<1)return y1>o.t-5&&y1<o.b+5&&Math.max(x1,x2)>o.l-5&&Math.min(x1,x2)<o.r+5;
+     if(Math.abs(x1-x2)<1)return x1>o.l-5&&x1<o.r+5&&Math.max(y1,y2)>o.t-5&&Math.min(y1,y2)<o.b+5;
+     return true;
+    });
+    edges.forEach(([from,to],i)=>{
      const a=rect(from),b=rect(to);
      const sx=(a.l+a.r)/2,tx=(b.l+b.r)/2;
-     const downward=b.t>=a.b;
-     const start={x:sx,y:downward?a.b+margin+2:a.t-margin-2};
-     const end={x:tx,y:downward?b.t-margin-2:b.b+margin+2};
-     // Route in a rectilinear grid, avoiding all unrelated cards.
-     // A* penalises turns so paths stay clean instead of zigzagging.
-     const cols=Math.ceil(width/step)+1,rows=Math.ceil(height/step)+1;
-     const key=(x,y)=>y*cols+x;
-     const cell=p=>({x:Math.max(0,Math.min(cols-1,Math.round(p.x/step))),y:Math.max(0,Math.min(rows-1,Math.round(p.y/step)))});
-     const source=cell(start),target=cell(end),sourceKey=key(source.x,source.y),targetKey=key(target.x,target.y);
-     const clear=(x,y)=>!blocked(x*step,y*step);
-     if(!clear(source.x,source.y)||!clear(target.x,target.y))return;
-     const queue=[{x:source.x,y:source.y,g:0,f:Math.abs(source.x-target.x)+Math.abs(source.y-target.y),dir:-1}];
-     const best=new Map([[sourceKey+':-1',0]]),previous=new Map();
-     let found=null,iterations=0;
-     while(queue.length&&iterations++<65000){
-      let min=0;for(let i=1;i<queue.length;i++)if(queue[i].f<queue[min].f)min=i;
-      const node=queue.splice(min,1)[0],nk=key(node.x,node.y)+':'+node.dir;
-      if(node.g!==best.get(nk))continue;
-      if(key(node.x,node.y)===targetKey){found=nk;break;}
-      for(let d=0;d<4;d++){
-       const nx=node.x+[1,-1,0,0][d],ny=node.y+[0,0,1,-1][d];
-       if(nx<0||ny<0||nx>=cols||ny>=rows||!clear(nx,ny))continue;
-       const g=node.g+1+(node.dir!==-1&&node.dir!==d?2:0);
-       const next=key(nx,ny)+':'+d;
-       if(g>=(best.get(next)??Infinity))continue;
-       best.set(next,g);previous.set(next,nk);
-       queue.push({x:nx,y:ny,g,dir:d,f:g+Math.abs(nx-target.x)+Math.abs(ny-target.y)});
-      }
+     const startY=a.b,endY=b.t;
+     let d='';
+     const mid=(startY+endY)/2;
+     if(endY>startY+16&&clear(sx,startY+5,sx,mid)&&clear(sx,mid,tx,mid)&&clear(tx,mid,tx,endY-5)){
+      d='M'+sx+' '+startY+' V'+mid+' H'+tx+' V'+endY;
+     }else{
+      // For dense layouts, use the outside corridor rather than crossing cards.
+      // Connect via card right edges and a unique vertical lane.
+      const lane=right+i*10;
+      const sy=(a.t+a.b)/2,ty=(b.t+b.b)/2;
+      if(!clear(a.r+5,sy,lane,sy)||!clear(lane,ty,b.r+5,ty))return;
+      d='M'+a.r+' '+sy+' H'+lane+' V'+ty+' H'+b.r;
      }
-     if(!found)return; // Never draw a connector through a card.
-     const points=[];
-     for(let k=found;k;k=previous.get(k)){const n=Number(k.split(':')[0]);points.push({x:(n%cols)*step,y:Math.floor(n/cols)*step});}
-     points.reverse();
-     const simplified=[start,...points.filter((p,i)=>i===0||i===points.length-1||(points[i-1].x-p.x)*(points[i+1].y-p.y)!==(points[i+1].x-p.x)*(points[i-1].y-p.y)),end];
      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-     path.setAttribute('d','M'+sx+' '+(downward?a.b:a.t)+' L'+simplified.map(p=>p.x+' '+p.y).join(' L')+' L'+tx+' '+(downward?b.t:b.b));
-     path.setAttribute('fill','none');path.setAttribute('stroke','#7cae93');path.setAttribute('stroke-width','2');
-     path.setAttribute('stroke-linejoin','round');path.setAttribute('stroke-linecap','round');svg.appendChild(path);
-    };
-    for(const p of reportingPositions){
-     const children=roleElements.get(p.id)||[];
-     const parent=p.reports_to_position_id?(roleElements.get(p.reports_to_position_id)||[])[0]:p.reports_to_department_id?findDept(p.reports_to_department_id)?.querySelector(':scope > .ec-hierarchy-head'):null;
-     for(const child of children)line(parent,child);
-    }
+     path.setAttribute('d',d);path.setAttribute('fill','none');
+     path.setAttribute('stroke','#79a98f');path.setAttribute('stroke-width','2');
+     path.setAttribute('stroke-linejoin','round');path.setAttribute('stroke-linecap','round');
+     svg.appendChild(path);
+    });
    };
    requestAnimationFrame(draw);
    if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(draw);observer.observe(chart);for(const node of deptNodes)observer.observe(node);}
