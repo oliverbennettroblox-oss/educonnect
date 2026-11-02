@@ -1288,7 +1288,12 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   ]);
   if(positions.error||staff.error||vacancies.error||depts.error){console.warn('Planned positions could not load',positions.error||staff.error||vacancies.error||depts.error);return;}
   if(!root.isConnected)return;
-  root.querySelectorAll('.ec-position-vacant,.ec-position-manager').forEach(el=>el.remove());
+  // Do not destroy an actively edited form on a background chart refresh.
+  const existingPanel=root.querySelector('.ec-position-manager');
+  const keepEditor=!!(existingPanel?.querySelector('[data-position-edit]')&&existingPanel.querySelector('[data-position-create]')?.dataset.positionEdit);
+  root.querySelectorAll('.ec-position-vacant').forEach(el=>el.remove());
+  if(!keepEditor)existingPanel?.remove();
+  root.querySelectorAll('.ec-report-lines').forEach(el=>el.remove());
   const allStaff=[...(staff.data||[]),...(manual.data||[])];
   for(const p of positions.data||[]){
    const occupied=allStaff.filter(x=>x.department_id===p.department_id&&Number(x.rank_code)===Number(p.rank_code)&&String(x.job_title||'').trim().toLowerCase()===String(p.title).trim().toLowerCase()).length;
@@ -1329,6 +1334,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     }):[];
     roleElements.set(p.id,matches);
    }
+   // Existing layout must be allowed to settle before calculating connectors.
    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
    svg.classList.add('ec-report-lines');svg.setAttribute('aria-hidden','true');chart.prepend(svg);
    // Group direct reports within their existing department and rank row.
@@ -1341,7 +1347,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     for(const child of roleElements.get(p.id)||[]){
      const row=child.closest('.ec-hierarchy-rank-people');
      if(!row)continue;
-     const k=p.reports_to_position_id+'|'+(row.closest('[data-rank-id]')?.dataset.rankId||'');
+     const k=p.reports_to_position_id+'|'+p.department_id+'|'+(row.closest('[data-rank-id]')?.dataset.rankId||'');
      if(!reportingGroups.has(k))reportingGroups.set(k,{manager,row,children:[]});
      reportingGroups.get(k).children.push(child);
     }
@@ -1415,17 +1421,29 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       const left=Math.min(...xs,previous.x),right=Math.max(...xs,previous.x);
       // One trunk connects the previous rank to a single shared bus for this rank.
       // The bus branches once to each role, avoiding a line through each card.
-      path('M'+previous.x+' '+previous.y+' V'+busY+' M'+left+' '+busY+' H'+right);
+      // Never draw a downward trunk through an intervening card.
+      // Choose an outside corridor if the vertical segment intersects any card.
+      const blockers=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el!==parent&&!row.includes(el)).map(rect);
+      const crosses=(x,y1,y2)=>blockers.some(b=>x>b.l-8&&x<b.r+8&&Math.max(y1,b.t-8)<Math.min(y2,b.b+8));
+      let trunkX=previous.x;
+      if(crosses(trunkX,previous.y,busY)){
+       const candidates=[left-30,right+30];
+       trunkX=candidates.find(x=>!crosses(x,previous.y,busY))??(left-30);
+       // Escape the parent horizontally just below its card before descending.
+       path('M'+previous.x+' '+previous.y+' V'+(previous.y+8)+' H'+trunkX+' V'+busY);
+      }else path('M'+previous.x+' '+previous.y+' V'+busY);
+      path('M'+Math.min(left,trunkX)+' '+busY+' H'+Math.max(right,trunkX));
       for(let i=0;i<bounds.length;i++)path('M'+xs[i]+' '+busY+' V'+bounds[i].t);
       previous={x:(Math.min(...xs)+Math.max(...xs))/2,y:busY};
      }
     }
    };
    requestAnimationFrame(draw);
-   if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(()=>requestAnimationFrame(draw));observer.observe(chart);for(const node of deptNodes)observer.observe(node);}
+   // Avoid observing the SVG's own dimensions: that caused repeated redraws and layout jumps.
    window.addEventListener('resize',draw,{passive:true});
   }
   if(publicView)return;
+  if(keepEditor)return;
   const panel=document.createElement('section');panel.className='ec-department-manager ec-position-manager';
   const planned=positions.data||[];
   const deptNames=new Map((depts.data||[]).map(d=>[d.id,d.name]));
@@ -1462,9 +1480,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   const parent=d.reporting?.startsWith('role:')?d.reporting.slice(5):null,reportDept=d.reporting?.startsWith('department:')?d.reporting.slice(11):null;
   // Resolve the reporting choice before validating or constructing the payload.
   // A deliberately cleared selection must remain cleared.
-  if(form.dataset.positionEdit&&form.elements.reporting.dataset.dirty!=='true'&&form.dataset.originalReporting){
-   d.reporting=form.dataset.originalReporting;
-  }
+  // The current select value is authoritative, including an intentional blank.
   const chosenParent=d.reporting?.startsWith('role:')?d.reporting.slice(5):null;
   const chosenDept=d.reporting?.startsWith('department:')?d.reporting.slice(11):null;
   if(chosenParent){
@@ -1475,7 +1491,9 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   const payload={title:d.title.trim(),department_id:d.department_id,rank_code:Number(d.rank_code),planned_count:Number(d.planned_count),description:d.description||"",requirements:d.requirements||"",reports_to_position_id:chosenParent,reports_to_department_id:chosenDept};
   const editId=form.dataset.positionEdit;
   const r=editId?await db.from('ec_org_positions').update(payload).eq('id',editId).eq('org_type',type).eq('org_id',id):await db.from('ec_org_positions').insert({...payload,org_type:type,org_id:id});
-  if(r.error){alert(r.error.message);return;}await renderOrganisationChart(type,id);
+  if(r.error){alert(r.error.message);return;}
+  delete form.dataset.positionEdit;
+  await renderOrganisationChart(type,id);
  });
  document.addEventListener('click',async e=>{
   const apply=e.target.closest('[data-position-apply]');
