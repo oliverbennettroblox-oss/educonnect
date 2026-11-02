@@ -1412,29 +1412,22 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       if(!ranks.has(key))ranks.set(key,[]);
       ranks.get(key).push(child);
      }
-     const rows=[...ranks.values()].sort((left,right)=>rect(left[0]).t-rect(right[0]).t);
+     // Lower Rank IDs form their own reporting tiers, even for the same parent.
+     const rows=[...ranks.entries()].sort((a,b)=>Number(b[0])-Number(a[0])).map(x=>x[1]);
      let previous={x:px,y:a.b};
      for(const row of rows){
-      const bounds=row.map(rect),top=Math.min(...bounds.map(b=>b.t));
-      const xs=bounds.map(b=>(b.l+b.r)/2);
-      const busY=top-15;
-      const left=Math.min(...xs,previous.x),right=Math.max(...xs,previous.x);
-      // One trunk connects the previous rank to a single shared bus for this rank.
-      // The bus branches once to each role, avoiding a line through each card.
-      // Never draw a downward trunk through an intervening card.
-      // Choose an outside corridor if the vertical segment intersects any card.
-      const blockers=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el!==parent&&!row.includes(el)).map(rect);
-      const crosses=(x,y1,y2)=>blockers.some(b=>x>b.l-8&&x<b.r+8&&Math.max(y1,b.t-8)<Math.min(y2,b.b+8));
-      let trunkX=previous.x;
-      if(crosses(trunkX,previous.y,busY)){
-       const candidates=[left-30,right+30];
-       trunkX=candidates.find(x=>!crosses(x,previous.y,busY))??(left-30);
-       // Escape the parent horizontally just below its card before descending.
-       path('M'+previous.x+' '+previous.y+' V'+(previous.y+8)+' H'+trunkX+' V'+busY);
-      }else path('M'+previous.x+' '+previous.y+' V'+busY);
-      path('M'+Math.min(left,trunkX)+' '+busY+' H'+Math.max(right,trunkX));
-      for(let i=0;i<bounds.length;i++)path('M'+xs[i]+' '+busY+' V'+bounds[i].t);
-      previous={x:(Math.min(...xs)+Math.max(...xs))/2,y:busY};
+      const bounds=row.map(rect),xs=bounds.map(b=>(b.l+b.r)/2);
+      const top=Math.min(...bounds.map(b=>b.t)),bottom=Math.max(...bounds.map(b=>b.b));
+      const busY=top-18,left=Math.min(...xs),right=Math.max(...xs);
+      const obstacles=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el!==parent&&!row.includes(el)).map(rect);
+      const clearV=(x,y1,y2)=>!obstacles.some(b=>x>b.l-10&&x<b.r+10&&Math.max(Math.min(y1,y2),b.t-10)<Math.min(Math.max(y1,y2),b.b+10));
+      const corridor=[previous.x,left-32,right+32,...obstacles.flatMap(b=>[b.l-20,b.r+20])].find(x=>clearV(x,previous.y+8,busY))??left-32;
+      const elbow=previous.y+8;
+      path('M'+previous.x+' '+previous.y+' V'+elbow+' H'+corridor+' V'+busY);
+      path('M'+Math.min(left,corridor)+' '+busY+' H'+Math.max(right,corridor));
+      for(let n=0;n<bounds.length;n++)path('M'+xs[n]+' '+busY+' V'+bounds[n].t);
+      // Start the next tier below the preceding cards, not through them.
+      previous={x:(left+right)/2,y:bottom+12};
      }
     }
    };
@@ -1467,7 +1460,17 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
  }
  if(typeof renderOrganisationChart==='function'){
   const original=renderOrganisationChart;
-  renderOrganisationChart=async function(type,id){await original.apply(this,arguments);await enhance(type,id,false);};
+  renderOrganisationChart=async function(type,id){
+   const oldRoot=document.getElementById('ecOrgStaffChart');
+   const panel=oldRoot?.querySelector('.ec-position-manager');
+   const editing=!!panel?.querySelector('[data-position-create]')?.dataset.positionEdit;
+   if(editing)panel.remove();
+   try{await original.apply(this,arguments);}
+   catch(err){if(editing&&oldRoot?.isConnected)oldRoot.appendChild(panel);throw err;}
+   const nextRoot=document.getElementById('ecOrgStaffChart');
+   if(editing&&nextRoot)nextRoot.appendChild(panel);
+   await enhance(type,id,false);
+  };
  }
  if(typeof loadShareableOrgChart==='function'){
   const original=loadShareableOrgChart;
