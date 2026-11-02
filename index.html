@@ -1355,11 +1355,23 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     group.row.classList.add('ec-report-aligned-row');
    }
    const align=()=>{
-    // Grouped cards stay in their original rank rows; expand those rows to
-    // make room rather than repeatedly shifting margins on resize.
+    // Reserve space for whole sibling groups beneath their managers.
+    const rows=new Map();
     for(const group of reportingGroups.values()){
-     group.holder.style.marginLeft='0px';
-     group.row.style.minWidth='max-content';
+     if(!rows.has(group.row))rows.set(group.row,[]);
+     rows.get(group.row).push(group);
+    }
+    for(const [row,groups] of rows){
+     for(const g of groups)g.holder.style.marginLeft='0px';
+     const rowLeft=row.getBoundingClientRect().left;
+     let cursor=0;
+     for(const g of groups.sort((a,b)=>a.manager.getBoundingClientRect().left-b.manager.getBoundingClientRect().left)){
+      const r=g.manager.getBoundingClientRect();
+      const desired=Math.max(cursor,(r.left+r.width/2-rowLeft)-g.holder.offsetWidth/2);
+      g.holder.style.marginLeft=Math.max(0,desired-cursor)+'px';
+      cursor=desired+g.holder.offsetWidth+24;
+     }
+     row.style.minWidth=Math.ceil(cursor)+'px';
     }
    };
    const draw=()=>{
@@ -1410,7 +1422,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     }
    };
    requestAnimationFrame(draw);
-   if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(draw);observer.observe(chart);for(const node of deptNodes)observer.observe(node);}
+   if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(()=>requestAnimationFrame(draw));observer.observe(chart);for(const node of deptNodes)observer.observe(node);}
    window.addEventListener('resize',draw,{passive:true});
   }
   if(publicView)return;
@@ -1448,13 +1460,19 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   const form=e.target.closest('[data-position-create]');if(!form)return;e.preventDefault();
   const panel=form.closest('.ec-position-manager'),type=panel.dataset.orgType,id=panel.dataset.orgId,d=Object.fromEntries(new FormData(form));
   const parent=d.reporting?.startsWith('role:')?d.reporting.slice(5):null,reportDept=d.reporting?.startsWith('department:')?d.reporting.slice(11):null;
-  if(parent){const other=await db.from('ec_org_positions').select('rank_code').eq('id',parent).eq('org_type',type).eq('org_id',id).maybeSingle();if(!other.data||Number(other.data.rank_code)<=Number(d.rank_code)){alert('A reporting manager must have a higher Rank ID.');return;}}
-  // Preserve the current reporting relationship if the edit control has not changed.
-  // An empty dropdown must not silently overwrite a previously saved relationship.
+  // Resolve the reporting choice before validating or constructing the payload.
+  // A deliberately cleared selection must remain cleared.
   if(form.dataset.positionEdit&&form.elements.reporting.dataset.dirty!=='true'&&form.dataset.originalReporting){
    d.reporting=form.dataset.originalReporting;
   }
-  const payload={title:d.title.trim(),department_id:d.department_id,rank_code:Number(d.rank_code),planned_count:Number(d.planned_count),description:d.description||"",requirements:d.requirements||"",reports_to_position_id:parent,reports_to_department_id:reportDept};
+  const chosenParent=d.reporting?.startsWith('role:')?d.reporting.slice(5):null;
+  const chosenDept=d.reporting?.startsWith('department:')?d.reporting.slice(11):null;
+  if(chosenParent){
+   if(chosenParent===form.dataset.positionEdit){alert('A position cannot report to itself.');return;}
+   const other=await db.from('ec_org_positions').select('rank_code').eq('id',chosenParent).eq('org_type',type).eq('org_id',id).maybeSingle();
+   if(!other.data||Number(other.data.rank_code)<=Number(d.rank_code)){alert('A reporting manager must have a higher Rank ID.');return;}
+  }
+  const payload={title:d.title.trim(),department_id:d.department_id,rank_code:Number(d.rank_code),planned_count:Number(d.planned_count),description:d.description||"",requirements:d.requirements||"",reports_to_position_id:chosenParent,reports_to_department_id:chosenDept};
   const editId=form.dataset.positionEdit;
   const r=editId?await db.from('ec_org_positions').update(payload).eq('id',editId).eq('org_type',type).eq('org_id',id):await db.from('ec_org_positions').insert({...payload,org_type:type,org_id:id});
   if(r.error){alert(r.error.message);return;}await renderOrganisationChart(type,id);
@@ -1468,7 +1486,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   if(edit){
    if(panel.dataset.editLoading==='true')return;
    panel.dataset.editLoading='true';
-   const r=await db.from('ec_org_positions').select('*').eq('id',edit.dataset.positionEdit).eq('org_type',type).eq('org_id',id).maybeSingle();panel.dataset.editLoading='false';if(!r.data){alert('Could not load position.');return;}
+   const r=await db.from('ec_org_positions').select('*').eq('id',edit.dataset.positionEdit).eq('org_type',type).eq('org_id',id).maybeSingle();panel.dataset.editLoading='false';if(!panel.isConnected)return;if(!r.data){alert('Could not load position.');return;}
    const form=panel.querySelector('[data-position-create]');const details=form.closest('details');details.open=true;form.dataset.positionEdit=r.data.id;
    for(const field of ['title','department_id','rank_code','planned_count','description','requirements'])if(form.elements[field])form.elements[field].value=r.data[field]??'';
    const selected=r.data.reports_to_position_id?'role:'+r.data.reports_to_position_id:r.data.reports_to_department_id?'department:'+r.data.reports_to_department_id:'';
