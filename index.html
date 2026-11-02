@@ -1340,7 +1340,9 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    const form=panel.querySelector('[data-position-create]');const details=form.closest('details');details.open=true;form.dataset.positionEdit=r.data.id;
    for(const field of ['title','department_id','rank_code','planned_count','description','requirements'])if(form.elements[field])form.elements[field].value=r.data[field]??'';
    form.elements.reporting.value=r.data.reports_to_position_id?'role:'+r.data.reports_to_position_id:r.data.reports_to_department_id?'department:'+r.data.reports_to_department_id:'';
-   [...form.elements.reporting.options].forEach(option=>{if(option.value.startsWith('role:')){const p=planned.find(x=>x.id===option.value.slice(5));option.disabled=!!p&&(p.id===r.data.id||Number(p.rank_code)<=Number(r.data.rank_code));}});
+   const peers=await db.from('ec_org_positions').select('id,rank_code').eq('org_type',type).eq('org_id',id);
+   if(!peers.error)[...form.elements.reporting.options].forEach(option=>{if(option.value.startsWith('role:')){const p=(peers.data||[]).find(x=>x.id===option.value.slice(5));option.disabled=!!p&&(p.id===r.data.id||Number(p.rank_code)<=Number(r.data.rank_code));}});
+   form.elements.reporting.value=r.data.reports_to_position_id?'role:'+r.data.reports_to_position_id:r.data.reports_to_department_id?'department:'+r.data.reports_to_department_id:'';
    details.querySelector('[data-position-form-heading]').textContent='Edit planned position';form.querySelector('[type=submit]').textContent='Save changes';form.scrollIntoView({block:'center',behavior:'smooth'});return;
   }
   if(del){if(!confirm('Remove this planned position? Existing staff will remain unchanged.'))return;const r=await db.from('ec_org_positions').delete().eq('id',del.dataset.positionDelete).eq('org_type',type).eq('org_id',id);if(r.error)alert(r.error.message);else await renderOrganisationChart(type,id);return;}
