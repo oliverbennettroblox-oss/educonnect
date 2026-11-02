@@ -1283,7 +1283,22 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     const before=[...area.querySelectorAll(':scope > .ec-hierarchy-rank')].find(g=>Number(g.dataset.rankId)<rank);
     if(before)area.insertBefore(group,before);else area.appendChild(group);
    }
-   group.querySelector('.ec-hierarchy-rank-people').insertAdjacentHTML('beforeend',card(p,missing,v));
+   const reportTo=p.reports_to_position_id?(positions.data||[]).find(x=>x.id===p.reports_to_position_id)?.title:p.reports_to_department_id?(depts.data||[]).find(x=>x.id===p.reports_to_department_id)?.name+' department':null;
+   const cardHtml=card(p,missing,v);
+   group.querySelector('.ec-hierarchy-rank-people').insertAdjacentHTML('beforeend',reportTo?cardHtml.replace('</small></span>','</small><small class="ec-position-reports">↳ Reports to '+esc(reportTo)+'</small></span>'):cardHtml);
+  }
+  // Annotate filled positions too, so reporting remains visible after recruitment.
+  for(const p of positions.data||[]){
+   const reportTo=p.reports_to_position_id?(positions.data||[]).find(x=>x.id===p.reports_to_position_id)?.title:p.reports_to_department_id?(depts.data||[]).find(x=>x.id===p.reports_to_department_id)?.name+' department':null;
+   if(!reportTo)continue;
+   const dept=(depts.data||[]).find(d=>d.id===p.department_id);
+   const node=[...root.querySelectorAll('.ec-hierarchy-node')].find(n=>n.querySelector(':scope > .ec-hierarchy-head strong')?.textContent.trim()===dept?.name);
+   if(!node)continue;
+   for(const info of node.querySelectorAll(':scope > .ec-hierarchy-staff .ec-hierarchy-person-info')){
+    const role=info.querySelector('small')?.textContent?.split(' · ')[0]?.trim();
+    if(role!==p.title||info.querySelector('.ec-position-reports'))continue;
+    const line=document.createElement('small');line.className='ec-position-reports';line.textContent='↳ Reports to '+reportTo;info.appendChild(line);
+   }
   }
   if(publicView)return;
   const panel=document.createElement('section');panel.className='ec-department-manager ec-position-manager';
