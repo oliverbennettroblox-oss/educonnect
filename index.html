@@ -1409,10 +1409,10 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     // a route is rejected when it would pass through any other card.
     const route=(start,end)=>{
      const step=12,pad=24;
-     const minX=Math.max(0,Math.min(start[0],end[0])-pad-180);
-     const maxX=Math.min(width+200,Math.max(start[0],end[0])+pad+180);
-     const minY=Math.max(0,Math.min(start[1],end[1])-pad-80);
-     const maxY=Math.min(height+200,Math.max(start[1],end[1])+pad+80);
+     const minX=Math.min(start[0],end[0])-pad-240;
+     const maxX=Math.max(start[0],end[0])+pad+240;
+     const minY=Math.min(start[1],end[1])-pad-120;
+     const maxY=Math.max(start[1],end[1])+pad+120;
      const xs=[start[0],end[0]],ys=[start[1],end[1]];
      for(let x=Math.floor(minX/step)*step;x<=maxX;x+=step)xs.push(x);
      for(let y=Math.floor(minY/step)*step;y<=maxY;y+=step)ys.push(y);
@@ -1437,7 +1437,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
        let hit=false;
        for(let t=1;t<samples;t++){if(blocked(x1+(x2-x1)*t/samples,y1+(y2-y1)*t/samples)){hit=true;break;}}
        if(hit||blocked(x2,y2)&&!(x===tx&&y===ty))continue;
-       const cost=cur.c+length+(cur.d&&cur.d!==d?25:0),k=key(x,y,d);
+       const cost=cur.c+length+(cur.d&&cur.d!==d?8:0),k=key(x,y,d);
        if(cost>=(best.get(k)??Infinity))continue;
        best.set(k,cost);queue.push({x,y,d,c:cost,prev:cur});
       }
@@ -1466,17 +1466,37 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       if(!ranks.has(k))ranks.set(k,[]);
       ranks.get(k).push(child);
      }
+     // A single junction per manager keeps every rank group on the same
+     // connected network. Use the shortest obstacle-free orthogonal path
+     // for every child instead of a horizontal bus that may cross cards.
+     const hub=[px,a.b+14];
+     path([[px,a.b],hub]);
      for(const [,row] of [...ranks].sort((a,b)=>b[0]-a[0])){
-      const bounds=row.map(rect),xs=bounds.map(b=>(b.l+b.r)/2);
-      const top=Math.min(...bounds.map(b=>b.t)),left=Math.min(...xs),right=Math.max(...xs);
-      const busY=top-17;
-      // Connect to a shared junction above the children, not through them.
-      const junction=[(left+right)/2,busY];
-      const routed=route([px,a.b+9],junction);
-      if(routed)path([[px,a.b],[px,a.b+9],...routed.slice(1)]);
-      else continue; // Never draw a line through a card as a fallback.
-      if(row.length>1)path([[left,busY],[right,busY]]);
-      for(let i=0;i<bounds.length;i++)path([[xs[i],busY],[xs[i],bounds[i].t]]);
+      const ordered=row.map(el=>({el,r:rect(el)})).sort((a,b)=>a.r.l-b.r.l);
+      for(const {r} of ordered){
+       const target=[(r.l+r.r)/2,r.t-12];
+       const routed=route(hub,target);
+       if(routed){
+        path(routed);
+        path([target,[target[0],r.t]]);
+       }else{
+        // Expand the search using a simple clear perimeter corridor.
+        // Never silently omit a saved reporting relationship.
+        const sideCandidates=[Math.min(hub[0],r.l)-40,Math.max(hub[0],r.r)+40];
+        const clearSegment=(p,q)=>{
+         const samples=Math.max(1,Math.ceil((Math.abs(q[0]-p[0])+Math.abs(q[1]-p[1]))/5));
+         for(let n=1;n<samples;n++)if(blocked(p[0]+(q[0]-p[0])*n/samples,p[1]+(q[1]-p[1])*n/samples))return false;
+         return true;
+        };
+        let fallback=null;
+        for(const side of sideCandidates){
+         const points=[hub,[side,hub[1]],[side,target[1]],target];
+         if(points.every((p,i)=>!i||clearSegment(points[i-1],p))){fallback=points;break;}
+        }
+        if(fallback){path(fallback);path([target,[target[0],r.t]]);}
+        else console.warn('Org chart: no collision-free reporting path',parent,r);
+       }
+      }
      }
     }
    };
