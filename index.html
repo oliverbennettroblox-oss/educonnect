@@ -484,18 +484,10 @@ body:has([data-school-hub-panel="timetable"]) [data-school-hub-panel="timetable"
 .ec-notice-poll{margin:16px 0;padding:16px;border-radius:13px;background:#f4f8f5;border:1px solid #dbe8de}.ec-poll-option{width:100%;display:flex;justify-content:space-between;gap:15px;text-align:left;padding:12px 14px;margin:7px 0;background:#fff;border:1px solid #d4e4da;border-radius:10px;cursor:pointer;font:inherit}.ec-poll-option.active{background:#e0f2e5;border-color:#72aa83}.ec-notice-poll-builder{margin:12px 0}.ec-notice-poll-fields{margin-top:12px}.ec-notice-poll-fields[hidden]{display:none!important}.ec-notice-poll-fields textarea{width:100%;box-sizing:border-box}.ec-notice-empty{text-align:center;padding:42px 20px;border:1px dashed #cbded1;border-radius:15px}.ec-notice-empty>span{font-size:28px}.ec-notice-empty h3{margin:7px 0}
 @media(max-width:550px){.ec-school-notice{padding:15px}.ec-notice-comment-form{flex-wrap:wrap}.ec-notice-comment-form .button{width:100%}}
 .ec-why-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:26px 0}.ec-why-grid article{padding:25px;border:1px solid #dbe7df;border-radius:18px;background:#fff}.ec-why-grid article span{font-size:11px;letter-spacing:.12em;color:#537f69;font-weight:800}.ec-why-grid h3{margin:12px 0}.ec-why-grid p{line-height:1.65}.ec-notice-comment-avatar img{width:35px;height:35px;object-fit:cover;border-radius:50%}.ec-notice-comment-avatar{display:inline-flex;width:35px;height:35px;align-items:center;justify-content:center;flex-shrink:0}.ec-comment-identity{background:none;border:0;padding:0;color:#174e3d;font:inherit;font-weight:700;cursor:pointer}.ec-comment-identity:hover{text-decoration:underline}@media(max-width:650px){.ec-why-grid{grid-template-columns:1fr}}</style><style>.ec-health-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-top:14px}.ec-health-item{background:#fff;border:1px solid #dce6df;border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:6px}.ec-health-item strong{font-size:25px;color:#174c40}.ec-health-item span{font-size:12px;color:#52665e}.ec-audit-entry{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:12px 0;border-bottom:1px solid #dce6df}.ec-audit-entry small{margin-left:auto;color:#63786c}.ec-profile-pick{display:flex;flex-direction:column;width:100%;padding:10px;text-align:left;border:1px solid #dce6df;background:#fff;border-radius:8px;cursor:pointer}.ec-profile-pick small{color:#60766b}</style><style>
-.ec-explicit-reporting{padding:20px 12px;margin-bottom:24px;border:1px solid #d9e7de;border-radius:16px;background:#f8fbf9;overflow-x:auto;text-align:center}
-.ec-explicit-reporting h3{margin:0 0 20px;color:#174b3b}
-.ec-report-forest{display:flex;justify-content:center;align-items:flex-start;gap:32px;min-width:max-content}
-.ec-report-branch,.ec-report-department{display:flex;flex-direction:column;align-items:center;position:relative;min-width:190px}
-.ec-report-cards{display:flex;gap:10px;justify-content:center;align-items:stretch}
-.ec-report-cards .ec-hierarchy-person{margin:0!important;min-width:180px}
-.ec-report-role-label{border:1px solid #b9d8c6;background:#fff;border-radius:12px;padding:14px 20px;font-weight:750;color:#225b47}
-.ec-report-children{display:flex;justify-content:center;gap:18px;padding-top:28px;position:relative}
-.ec-report-children:before{content:'';position:absolute;top:0;height:28px;left:50%;border-left:2px solid #91b9a4}
-.ec-report-children>.ec-report-branch:before,.ec-report-children>.ec-report-department:before{content:'';position:absolute;top:-28px;height:28px;left:50%;border-left:2px solid #91b9a4}
-.ec-report-children:has(> :nth-child(2)):after{content:'';position:absolute;top:0;left:calc(100% / var(--unused, 2) / 2);right:calc(100% / var(--unused, 2) / 2);border-top:2px solid #91b9a4}
-.ec-chart-with-explicit-reporting>.ec-hierarchy-node .ec-hierarchy-rank-connector,.ec-chart-with-explicit-reporting>.ec-hierarchy-node .ec-hierarchy-branch{display:none}
+.ec-reporting-integrated{position:relative}
+.ec-report-lines{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:visible}
+.ec-reporting-integrated .ec-hierarchy-rank-connector,.ec-reporting-integrated .ec-hierarchy-branch{visibility:hidden}
+.ec-reporting-integrated .ec-hierarchy-rank-people:before,.ec-reporting-integrated .ec-hierarchy-person:before{display:none!important}
 </style>
 </head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Find MATs</button><button data-page="org-jobs" onclick="go('org-jobs')">Find a job</button><button data-page="community" onclick="go('community')">Find People</button><button data-page="resources" onclick="go('resources')">Resources Library</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('learning')">EduCareer</button><button onclick="go('providers')">Education providers</button><button onclick="go('standards')">Standards & inspections</button><button onclick="go('suggestions')">Suggestions</button><button onclick="go('book-demo')">Book a demo</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('resources')">Resources Library</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
 const schools=[];
@@ -1300,60 +1292,54 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    }
    group.querySelector('.ec-hierarchy-rank-people').insertAdjacentHTML('beforeend',card(p,missing,v));
   }
-  // Render explicit reporting relationships as isolated branches, never as a
-  // blanket connector across unrelated rank peers or departments.
-  const plannedRoles=positions.data||[];
-  if(plannedRoles.some(p=>p.reports_to_position_id||p.reports_to_department_id)){
-   const chart=root.querySelector('.ec-org-chart-hierarchy');
-   if(chart){
-    const roleCards=new Map();
-    const nodes=[...chart.querySelectorAll('.ec-hierarchy-node')];
-    for(const p of plannedRoles){
-     const dept=(depts.data||[]).find(d=>d.id===p.department_id);
-     const node=nodes.find(n=>n.querySelector(':scope > .ec-hierarchy-head strong')?.textContent.trim()===dept?.name);
-     const cards=node?[...node.querySelectorAll(':scope > .ec-hierarchy-staff .ec-hierarchy-rank-people > .ec-hierarchy-person')].filter(el=>{
-      const title=el.querySelector('.ec-hierarchy-person-info small')?.textContent?.split(' · ')[0]?.trim();
-      const vacancy=el.classList.contains('ec-position-vacant')?el.querySelector('.ec-hierarchy-person-info strong')?.textContent?.replace(/ ×\\d+$/,'').trim():null;
-      const rank=Number(el.closest('[data-rank-id]')?.dataset.rankId);
-      return rank===Number(p.rank_code)&&(title===p.title||vacancy===p.title);
-     }):[];
-     roleCards.set(p.id,cards);
-    }
-    const involved=new Set(plannedRoles.filter(p=>p.reports_to_position_id||p.reports_to_department_id).map(p=>p.id));
-    for(const p of plannedRoles)if(plannedRoles.some(x=>x.reports_to_position_id===p.id))involved.add(p.id);
-    const wrapper=document.createElement('section');wrapper.className='ec-explicit-reporting';wrapper.innerHTML='<h3>Reporting structure</h3>';
-    const forest=document.createElement('div');forest.className='ec-report-forest';wrapper.appendChild(forest);
-    const renderRole=(p,visited=new Set())=>{
-     if(visited.has(p.id))return null;
-     const seen=new Set(visited);seen.add(p.id);
-     const branch=document.createElement('div');branch.className='ec-report-branch';
-     const cards=document.createElement('div');cards.className='ec-report-cards';
-     for(const cardEl of roleCards.get(p.id)||[])cards.appendChild(cardEl);
-     if(!cards.children.length){const fallback=document.createElement('div');fallback.className='ec-report-role-label';fallback.textContent=p.title;cards.appendChild(fallback);}
-     branch.appendChild(cards);
-     const children=plannedRoles.filter(x=>x.reports_to_position_id===p.id).sort((x,y)=>Number(y.rank_code)-Number(x.rank_code));
-     if(children.length){
-      const group=document.createElement('div');group.className='ec-report-children';
-      for(const child of children){const childNode=renderRole(child,seen);if(childNode)group.appendChild(childNode);}
-      if(group.children.length)branch.appendChild(group);
-     }
-     return branch;
-    };
-    const roots=plannedRoles.filter(p=>involved.has(p.id)&&(!p.reports_to_position_id||!plannedRoles.some(x=>x.id===p.reports_to_position_id)));
-    for(const p of roots.filter(p=>!p.reports_to_department_id).sort((x,y)=>Number(y.rank_code)-Number(x.rank_code))){const node=renderRole(p);if(node)forest.appendChild(node);}
-    const byDept=new Map();
-    for(const p of roots.filter(p=>p.reports_to_department_id)){const arr=byDept.get(p.reports_to_department_id)||[];arr.push(p);byDept.set(p.reports_to_department_id,arr);}
-    for(const [deptId,group] of byDept){
-     const department=document.createElement('div');department.className='ec-report-department';
-     const heading=document.createElement('div');heading.className='ec-report-role-label';heading.textContent=(depts.data||[]).find(d=>d.id===deptId)?.name||'Department';department.appendChild(heading);
-     const children=document.createElement('div');children.className='ec-report-children';
-     for(const p of group.sort((x,y)=>Number(y.rank_code)-Number(x.rank_code))){const node=renderRole(p);if(node)children.appendChild(node);}
-     department.appendChild(children);forest.appendChild(department);
-    }
-    if(forest.children.length)chart.prepend(wrapper);
-    // Suppress connector styling on the remaining conventional hierarchy.
-    chart.classList.add('ec-chart-with-explicit-reporting');
+  // Connect reporting relationships inside the existing department/rank chart.
+  // Use SVG geometry so only explicitly configured relationships get lines.
+  const reportingPositions=positions.data||[];
+  const chart=root.querySelector('.ec-org-chart-hierarchy');
+  if(chart&&reportingPositions.some(p=>p.reports_to_position_id||p.reports_to_department_id)){
+   chart.classList.add('ec-reporting-integrated');
+   const deptNodes=[...chart.querySelectorAll('.ec-hierarchy-node')];
+   const findDept=deptId=>{
+    const name=(depts.data||[]).find(d=>d.id===deptId)?.name;
+    return deptNodes.find(n=>n.querySelector(':scope > .ec-hierarchy-head strong')?.textContent.trim()===name);
+   };
+   const roleElements=new Map();
+   for(const p of reportingPositions){
+    const node=findDept(p.department_id);
+    const matches=node?[...node.querySelectorAll(':scope > .ec-hierarchy-staff .ec-hierarchy-rank-people > .ec-hierarchy-person')].filter(el=>{
+     const info=el.querySelector('.ec-hierarchy-person-info');
+     const label=info?.querySelector('small')?.textContent?.split(' · ')[0]?.trim();
+     const title=info?.querySelector('strong')?.textContent?.replace(/ ×\\d+$/,'').trim();
+     return Number(el.closest('[data-rank-id]')?.dataset.rankId)===Number(p.rank_code)&&(label===p.title||title===p.title);
+    }):[];
+    roleElements.set(p.id,matches);
    }
+   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   svg.classList.add('ec-report-lines');svg.setAttribute('aria-hidden','true');chart.prepend(svg);
+   const draw=()=>{
+    svg.replaceChildren();
+    const base=chart.getBoundingClientRect();
+    svg.setAttribute('width',String(chart.scrollWidth));svg.setAttribute('height',String(chart.scrollHeight));
+    const line=(from,to)=>{
+     if(!from||!to)return;
+     const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();
+     const x1=a.left+a.width/2-base.left+chart.scrollLeft,y1=a.bottom-base.top+chart.scrollTop;
+     const x2=b.left+b.width/2-base.left+chart.scrollLeft,y2=b.top-base.top+chart.scrollTop;
+     const middle=(y1+y2)/2;
+     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+     path.setAttribute('d','M'+x1+' '+y1+' V'+middle+' H'+x2+' V'+y2);
+     path.setAttribute('fill','none');path.setAttribute('stroke','#7cae93');path.setAttribute('stroke-width','2');
+     path.setAttribute('stroke-linecap','round');svg.appendChild(path);
+    };
+    for(const p of reportingPositions){
+     const children=roleElements.get(p.id)||[];
+     const parent=p.reports_to_position_id?(roleElements.get(p.reports_to_position_id)||[])[0]:p.reports_to_department_id?findDept(p.reports_to_department_id)?.querySelector(':scope > .ec-hierarchy-head'):null;
+     for(const child of children)line(parent,child);
+    }
+   };
+   requestAnimationFrame(draw);
+   if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(draw);observer.observe(chart);for(const node of deptNodes)observer.observe(node);}
+   window.addEventListener('resize',draw,{passive:true});
   }
   if(publicView)return;
   const panel=document.createElement('section');panel.className='ec-department-manager ec-position-manager';
