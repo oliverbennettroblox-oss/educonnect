@@ -1389,45 +1389,94 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     for(const p of reportingPositions){
      const parent=p.reports_to_position_id?(roleElements.get(p.reports_to_position_id)||[])[0]:p.reports_to_department_id?findDept(p.reports_to_department_id)?.querySelector(':scope > .ec-hierarchy-head'):null;
      if(!parent)continue;
-     const children=roleElements.get(p.id)||[];
+     const children=(roleElements.get(p.id)||[]).filter(child=>child!==parent);
      if(!groups.has(parent))groups.set(parent,[]);
-     groups.get(parent).push(...children.filter(child=>child!==parent));
+     groups.get(parent).push(...children);
     }
     const width=chart.scrollWidth,height=chart.scrollHeight;
     svg.setAttribute('width',String(width));svg.setAttribute('height',String(height));
     svg.style.width=width+'px';svg.style.height=height+'px';
-    const path=d=>{
+    const obstacles=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].map(rect);
+    const blocked=(x,y,ignore=[])=>obstacles.some(b=>!ignore.includes(b)&&x>b.l-7&&x<b.r+7&&y>b.t-7&&y<b.b+7);
+    const path=points=>{
+     if(points.length<2)return;
      const el=document.createElementNS('http://www.w3.org/2000/svg','path');
-     el.setAttribute('d',d);el.setAttribute('fill','none');el.setAttribute('stroke','#79a98f');
+     el.setAttribute('d',points.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' '));
+     el.setAttribute('fill','none');el.setAttribute('stroke','#79a98f');
      el.setAttribute('stroke-width','2');el.setAttribute('stroke-linecap','round');el.setAttribute('stroke-linejoin','round');svg.appendChild(el);
+    };
+    // Route each segment on an orthogonal grid. Unlike the old drawing code,
+    // a route is rejected when it would pass through any other card.
+    const route=(start,end)=>{
+     const step=12,pad=24;
+     const minX=Math.max(0,Math.min(start[0],end[0])-pad-180);
+     const maxX=Math.min(width+200,Math.max(start[0],end[0])+pad+180);
+     const minY=Math.max(0,Math.min(start[1],end[1])-pad-80);
+     const maxY=Math.min(height+200,Math.max(start[1],end[1])+pad+80);
+     const xs=[start[0],end[0]],ys=[start[1],end[1]];
+     for(let x=Math.floor(minX/step)*step;x<=maxX;x+=step)xs.push(x);
+     for(let y=Math.floor(minY/step)*step;y<=maxY;y+=step)ys.push(y);
+     for(const o of obstacles){xs.push(o.l-12,o.r+12);ys.push(o.t-12,o.b+12);}
+     const xx=[...new Set(xs.filter(x=>x>=minX&&x<=maxX))].sort((a,b)=>a-b);
+     const yy=[...new Set(ys.filter(y=>y>=minY&&y<=maxY))].sort((a,b)=>a-b);
+     const sx=xx.indexOf(start[0]),sy=yy.indexOf(start[1]),tx=xx.indexOf(end[0]),ty=yy.indexOf(end[1]);
+     if(sx<0||sy<0||tx<0||ty<0)return null;
+     const key=(x,y,d)=>x+','+y+','+d;
+     const queue=[{x:sx,y:sy,d:0,c:0,prev:null}];
+     const best=new Map([[key(sx,sy,0),0]]);
+     let found=null,iterations=0;
+     while(queue.length&&iterations++<24000){
+      queue.sort((a,b)=>a.c+Math.abs(xx[a.x]-end[0])+Math.abs(yy[a.y]-end[1])-(b.c+Math.abs(xx[b.x]-end[0])+Math.abs(yy[b.y]-end[1])));
+      const cur=queue.shift();
+      if(cur.x===tx&&cur.y===ty){found=cur;break;}
+      for(const [dx,dy,d] of [[1,0,1],[-1,0,1],[0,1,2],[0,-1,2]]){
+       const x=cur.x+dx,y=cur.y+dy;if(x<0||x>=xx.length||y<0||y>=yy.length)continue;
+       const x1=xx[cur.x],y1=yy[cur.y],x2=xx[x],y2=yy[y];
+       const length=Math.abs(x2-x1)+Math.abs(y2-y1);
+       const samples=Math.max(1,Math.ceil(length/6));
+       let hit=false;
+       for(let t=1;t<samples;t++){if(blocked(x1+(x2-x1)*t/samples,y1+(y2-y1)*t/samples)){hit=true;break;}}
+       if(hit||blocked(x2,y2)&&!(x===tx&&y===ty))continue;
+       const cost=cur.c+length+(cur.d&&cur.d!==d?25:0),k=key(x,y,d);
+       if(cost>=(best.get(k)??Infinity))continue;
+       best.set(k,cost);queue.push({x,y,d,c:cost,prev:cur});
+      }
+     }
+     if(!found)return null;
+     const points=[];for(let n=found;n;n=n.prev)points.push([xx[n.x],yy[n.y]]);
+     points.reverse();
+     const clean=[];
+     for(const p of points){
+      clean.push(p);
+      while(clean.length>=3){
+       const n=clean.length,a=clean[n-3],b=clean[n-2],c=clean[n-1];
+       if((a[0]===b[0]&&b[0]===c[0])||(a[1]===b[1]&&b[1]===c[1]))clean.splice(n-2,1);else break;
+      }
+     }
+     return clean;
     };
     for(const [parent,children] of groups){
      if(!children.length)continue;
      const a=rect(parent),px=(a.l+a.r)/2;
-     // Each rank has its own horizontal bus. Never route through a row of cards.
+     // Each rank is an independent branch from the same manager.
+     // Lower IDs never connect through the preceding rank's cards.
      const ranks=new Map();
      for(const child of children){
-      const row=child.closest('[data-rank-id]');
-      const key=row?.dataset.rankId||'other';
-      if(!ranks.has(key))ranks.set(key,[]);
-      ranks.get(key).push(child);
+      const k=Number(child.closest('[data-rank-id]')?.dataset.rankId)||0;
+      if(!ranks.has(k))ranks.set(k,[]);
+      ranks.get(k).push(child);
      }
-     // Lower Rank IDs form their own reporting tiers, even for the same parent.
-     const rows=[...ranks.entries()].sort((a,b)=>Number(b[0])-Number(a[0])).map(x=>x[1]);
-     let previous={x:px,y:a.b};
-     for(const row of rows){
+     for(const [,row] of [...ranks].sort((a,b)=>b[0]-a[0])){
       const bounds=row.map(rect),xs=bounds.map(b=>(b.l+b.r)/2);
-      const top=Math.min(...bounds.map(b=>b.t)),bottom=Math.max(...bounds.map(b=>b.b));
-      const busY=top-18,left=Math.min(...xs),right=Math.max(...xs);
-      const obstacles=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el!==parent&&!row.includes(el)).map(rect);
-      const clearV=(x,y1,y2)=>!obstacles.some(b=>x>b.l-10&&x<b.r+10&&Math.max(Math.min(y1,y2),b.t-10)<Math.min(Math.max(y1,y2),b.b+10));
-      const corridor=[previous.x,left-32,right+32,...obstacles.flatMap(b=>[b.l-20,b.r+20])].find(x=>clearV(x,previous.y+8,busY))??left-32;
-      const elbow=previous.y+8;
-      path('M'+previous.x+' '+previous.y+' V'+elbow+' H'+corridor+' V'+busY);
-      path('M'+Math.min(left,corridor)+' '+busY+' H'+Math.max(right,corridor));
-      for(let n=0;n<bounds.length;n++)path('M'+xs[n]+' '+busY+' V'+bounds[n].t);
-      // Start the next tier below the preceding cards, not through them.
-      previous={x:(left+right)/2,y:bottom+12};
+      const top=Math.min(...bounds.map(b=>b.t)),left=Math.min(...xs),right=Math.max(...xs);
+      const busY=top-17;
+      // Connect to a shared junction above the children, not through them.
+      const junction=[(left+right)/2,busY];
+      const routed=route([px,a.b+9],junction);
+      if(routed)path([[px,a.b],[px,a.b+9],...routed.slice(1)]);
+      else continue; // Never draw a line through a card as a fallback.
+      if(row.length>1)path([[left,busY],[right,busY]]);
+      for(let i=0;i<bounds.length;i++)path([[xs[i],busY],[xs[i],bounds[i].t]]);
      }
     }
    };
