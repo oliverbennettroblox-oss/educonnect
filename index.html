@@ -1369,25 +1369,46 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     svg.replaceChildren();
     const base=chart.getBoundingClientRect();
     const rect=el=>{const r=el.getBoundingClientRect();return {l:r.left-base.left+chart.scrollLeft,t:r.top-base.top+chart.scrollTop,r:r.right-base.left+chart.scrollLeft,b:r.bottom-base.top+chart.scrollTop};};
-    const edges=[];
+    const groups=new Map();
     for(const p of reportingPositions){
      const parent=p.reports_to_position_id?(roleElements.get(p.reports_to_position_id)||[])[0]:p.reports_to_department_id?findDept(p.reports_to_department_id)?.querySelector(':scope > .ec-hierarchy-head'):null;
-     for(const child of roleElements.get(p.id)||[])if(parent&&child!==parent)edges.push([parent,child]);
+     if(!parent)continue;
+     const children=roleElements.get(p.id)||[];
+     if(!groups.has(parent))groups.set(parent,[]);
+     groups.get(parent).push(...children.filter(child=>child!==parent));
     }
     const width=chart.scrollWidth,height=chart.scrollHeight;
     svg.setAttribute('width',String(width));svg.setAttribute('height',String(height));
     svg.style.width=width+'px';svg.style.height=height+'px';
-    for(const [from,to] of edges){
-     const a=rect(from),b=rect(to);
-     const x1=(a.l+a.r)/2,x2=(b.l+b.r)/2;
-     const down=b.t>a.b;
-     const y1=down?a.b:a.t,y2=down?b.t:b.b;
-     const middle=(y1+y2)/2;
-     const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-     path.setAttribute('d','M'+x1+' '+y1+' V'+middle+' H'+x2+' V'+y2);
-     path.setAttribute('fill','none');path.setAttribute('stroke','#79a98f');
-     path.setAttribute('stroke-width','2');path.setAttribute('stroke-linejoin','round');
-     svg.appendChild(path);
+    const path=d=>{
+     const el=document.createElementNS('http://www.w3.org/2000/svg','path');
+     el.setAttribute('d',d);el.setAttribute('fill','none');el.setAttribute('stroke','#79a98f');
+     el.setAttribute('stroke-width','2');el.setAttribute('stroke-linecap','round');el.setAttribute('stroke-linejoin','round');svg.appendChild(el);
+    };
+    for(const [parent,children] of groups){
+     if(!children.length)continue;
+     const a=rect(parent),px=(a.l+a.r)/2;
+     // Each rank has its own horizontal bus. Never route through a row of cards.
+     const ranks=new Map();
+     for(const child of children){
+      const row=child.closest('[data-rank-id]');
+      const key=row?.dataset.rankId||'other';
+      if(!ranks.has(key))ranks.set(key,[]);
+      ranks.get(key).push(child);
+     }
+     const rows=[...ranks.values()].sort((left,right)=>rect(left[0]).t-rect(right[0]).t);
+     let previous={x:px,y:a.b};
+     for(const row of rows){
+      const bounds=row.map(rect),top=Math.min(...bounds.map(b=>b.t));
+      const xs=bounds.map(b=>(b.l+b.r)/2);
+      const busY=top-15;
+      const left=Math.min(...xs,previous.x),right=Math.max(...xs,previous.x);
+      // One trunk connects the previous rank to a single shared bus for this rank.
+      // The bus branches once to each role, avoiding a line through each card.
+      path('M'+previous.x+' '+previous.y+' V'+busY+' M'+left+' '+busY+' H'+right);
+      for(let i=0;i<bounds.length;i++)path('M'+xs[i]+' '+busY+' V'+bounds[i].t);
+      previous={x:(Math.min(...xs)+Math.max(...xs))/2,y:busY};
+     }
     }
    };
    requestAnimationFrame(draw);
@@ -1413,11 +1434,17 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   const original=loadShareableOrgChart;
   loadShareableOrgChart=async function(route){await original.apply(this,arguments);const [type,id]=route.split(':');await enhance(type,id,true);};
  }
+ document.addEventListener('change',e=>{if(e.target.matches('[data-position-reporting]'))e.target.dataset.dirty='true';});
  document.addEventListener('submit',async e=>{
   const form=e.target.closest('[data-position-create]');if(!form)return;e.preventDefault();
   const panel=form.closest('.ec-position-manager'),type=panel.dataset.orgType,id=panel.dataset.orgId,d=Object.fromEntries(new FormData(form));
   const parent=d.reporting?.startsWith('role:')?d.reporting.slice(5):null,reportDept=d.reporting?.startsWith('department:')?d.reporting.slice(11):null;
   if(parent){const other=await db.from('ec_org_positions').select('rank_code').eq('id',parent).eq('org_type',type).eq('org_id',id).maybeSingle();if(!other.data||Number(other.data.rank_code)<=Number(d.rank_code)){alert('A reporting manager must have a higher Rank ID.');return;}}
+  // Preserve the current reporting relationship if the edit control has not changed.
+  // An empty dropdown must not silently overwrite a previously saved relationship.
+  if(form.dataset.positionEdit&&form.elements.reporting.dataset.dirty!=='true'&&form.dataset.originalReporting){
+   d.reporting=form.dataset.originalReporting;
+  }
   const payload={title:d.title.trim(),department_id:d.department_id,rank_code:Number(d.rank_code),planned_count:Number(d.planned_count),description:d.description||"",requirements:d.requirements||"",reports_to_position_id:parent,reports_to_department_id:reportDept};
   const editId=form.dataset.positionEdit;
   const r=editId?await db.from('ec_org_positions').update(payload).eq('id',editId).eq('org_type',type).eq('org_id',id):await db.from('ec_org_positions').insert({...payload,org_type:type,org_id:id});
@@ -1430,13 +1457,17 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   const panel=e.target.closest('.ec-position-manager');if(!panel)return;
   const type=panel.dataset.orgType,id=panel.dataset.orgId;
   if(edit){
-   const r=await db.from('ec_org_positions').select('*').eq('id',edit.dataset.positionEdit).eq('org_type',type).eq('org_id',id).maybeSingle();if(!r.data){alert('Could not load position.');return;}
+   if(panel.dataset.editLoading==='true')return;
+   panel.dataset.editLoading='true';
+   const r=await db.from('ec_org_positions').select('*').eq('id',edit.dataset.positionEdit).eq('org_type',type).eq('org_id',id).maybeSingle();panel.dataset.editLoading='false';if(!r.data){alert('Could not load position.');return;}
    const form=panel.querySelector('[data-position-create]');const details=form.closest('details');details.open=true;form.dataset.positionEdit=r.data.id;
    for(const field of ['title','department_id','rank_code','planned_count','description','requirements'])if(form.elements[field])form.elements[field].value=r.data[field]??'';
-   form.elements.reporting.value=r.data.reports_to_position_id?'role:'+r.data.reports_to_position_id:r.data.reports_to_department_id?'department:'+r.data.reports_to_department_id:'';
-   const peers=await db.from('ec_org_positions').select('id,rank_code').eq('org_type',type).eq('org_id',id);
-   if(!peers.error)[...form.elements.reporting.options].forEach(option=>{if(option.value.startsWith('role:')){const p=(peers.data||[]).find(x=>x.id===option.value.slice(5));option.disabled=!!p&&(p.id===r.data.id||Number(p.rank_code)<=Number(r.data.rank_code));}});
-   form.elements.reporting.value=r.data.reports_to_position_id?'role:'+r.data.reports_to_position_id:r.data.reports_to_department_id?'department:'+r.data.reports_to_department_id:'';
+   const selected=r.data.reports_to_position_id?'role:'+r.data.reports_to_position_id:r.data.reports_to_department_id?'department:'+r.data.reports_to_department_id:'';
+   // Never disable an existing saved selection or reset the control after an await.
+   for(const option of form.elements.reporting.options)option.disabled=false;
+   form.elements.reporting.value=selected;
+   form.dataset.originalReporting=selected;
+   form.elements.reporting.dataset.dirty='false';
    details.querySelector('[data-position-form-heading]').textContent='Edit planned position';form.querySelector('[type=submit]').textContent='Save changes';form.scrollIntoView({block:'center',behavior:'smooth'});return;
   }
   if(del){if(!confirm('Remove this planned position? Existing staff will remain unchanged.'))return;const r=await db.from('ec_org_positions').delete().eq('id',del.dataset.positionDelete).eq('org_type',type).eq('org_id',id);if(r.error)alert(r.error.message);else await renderOrganisationChart(type,id);return;}
