@@ -1269,6 +1269,16 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
  const card=(p,count,v)=>'<div class="ec-hierarchy-person ec-hierarchy-profile-card ec-position-vacant"><div class="ec-hierarchy-profile-button"><span class="ec-hierarchy-avatar ec-hierarchy-avatar-placeholder" aria-hidden="true">+</span><span class="ec-hierarchy-person-info"><strong>'+esc(p.title)+(count>1?' ×'+count:'')+'</strong><small>'+(v?'Applications open':'Position unfilled')+'</small></span></div>'+(v?'<button class="button light ec-position-action" type="button" data-position-apply="'+esc(v.id)+'">Apply now</button>':'')+'</div>';
  async function enhance(type,id,publicView){
   const root=document.getElementById(publicView?'ecSharedOrgChart':'ecOrgStaffChart');if(!root)return;
+  // Preserve unsaved edits when the chart is refreshed by another UI action.
+  const oldEditor=!publicView?root.querySelector('.ec-position-manager [data-position-create]'):null;
+  const editingDraft=oldEditor&&oldEditor.dataset.positionEdit?{
+   id:oldEditor.dataset.positionEdit,
+   values:Object.fromEntries(new FormData(oldEditor)),
+   reporting:oldEditor.elements.reporting.value,
+   original:oldEditor.dataset.originalReporting||'',
+   dirty:oldEditor.elements.reporting.dataset.dirty||'false',
+   open:oldEditor.closest('details')?.open
+  }:null;
   const [positions,staff,manual,vacancies,depts]=await Promise.all([
    db.from('ec_org_positions').select('*').eq('org_type',type).eq('org_id',id),
    db.from('ec_org_staff').select('job_title,department_id,rank_code').eq('org_type',type).eq('org_id',id).eq('status','accepted'),
@@ -1345,23 +1355,11 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     group.row.classList.add('ec-report-aligned-row');
    }
    const align=()=>{
-    const byRow=new Map();
+    // Grouped cards stay in their original rank rows; expand those rows to
+    // make room rather than repeatedly shifting margins on resize.
     for(const group of reportingGroups.values()){
-     const list=byRow.get(group.row)||[];list.push(group);byRow.set(group.row,list);
-    }
-    for(const [row,groups] of byRow){
-     row.style.minWidth='';
-     for(const g of groups)g.holder.style.marginLeft='0px';
-     const rowRect=row.getBoundingClientRect();
-     const ordered=groups.sort((a,b)=>a.manager.getBoundingClientRect().left-b.manager.getBoundingClientRect().left);
-     let cursor=0;
-     for(const g of ordered){
-      const r=g.manager.getBoundingClientRect();
-      const desired=Math.max(cursor,(r.left+r.width/2-rowRect.left)-g.holder.offsetWidth/2);
-      g.holder.style.marginLeft=Math.max(0,desired-cursor)+'px';
-      cursor=desired+g.holder.offsetWidth+18;
-     }
-     row.style.minWidth=Math.ceil(cursor)+'px';
+     group.holder.style.marginLeft='0px';
+     group.row.style.minWidth='max-content';
     }
    };
    const draw=()=>{
@@ -1423,6 +1421,17 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   const reportLabel=p=>{const parent=planned.find(x=>x.id===p.reports_to_position_id);const dept=(depts.data||[]).find(x=>x.id===p.reports_to_department_id);return parent?'Reports to '+parent.title:dept?'Reports to '+dept.name+' department':'No reporting line set';};
   const roleRows=planned.map(p=>'<div class="ec-position-list-row"><div class="ec-position-list-icon" aria-hidden="true">◈</div><div class="ec-position-list-copy"><strong>'+esc(p.title)+'</strong><small>'+esc(deptNames.get(p.department_id)||'Department')+' · Rank '+Number(p.rank_code)+' · '+Number(p.planned_count)+' planned</small><small>'+esc(reportLabel(p))+'</small></div><div class="ec-position-row-actions"><button type="button" class="button light" data-position-recruit="'+esc(p.id)+'">Recruit</button><button type="button" class="button light" data-position-edit="'+esc(p.id)+'">Edit</button><button type="button" class="button light ec-position-remove" data-position-delete="'+esc(p.id)+'" aria-label="Remove '+esc(p.title)+'">Remove</button></div></div>').join('');
   panel.innerHTML='<div class="ec-position-manager-head"><div><span class="ec-position-eyebrow">WORKFORCE PLANNING</span><h3>Planned positions</h3><p class="small">Plan your staffing structure. Unfilled roles appear on the organisation chart, and appointments reduce vacancies automatically.</p></div><span class="ec-position-count">'+planned.length+' role'+(planned.length===1?'':'s')+'</span></div><div class="ec-position-list">'+(roleRows||'<div class="ec-position-empty">No positions planned yet. Add a role to start building your staffing structure.</div>')+'</div><details class="ec-position-add"><summary><span aria-hidden="true">＋</span> <span data-position-form-heading>Add a planned position</span> <span class="ec-position-chevron" aria-hidden="true">⌄</span></summary><form class="form ec-position-form" data-position-create><div class="ec-position-form-grid"><label>Role title<input name="title" required maxlength="120" placeholder="e.g. Director of People"></label><label>Department<select name="department_id" required><option value="">Select department</option>'+(depts.data||[]).map(d=>'<option value="'+esc(d.id)+'">'+esc(d.name)+'</option>').join('')+'</select></label><label>Rank ID<input type="number" name="rank_code" min="1" max="255" value="1" required></label><label>Number of positions<input type="number" name="planned_count" min="1" max="500" value="1" required></label><label>Reports to<select name="reporting" data-position-reporting><option value="">No direct reporting line</option><optgroup label="Planned roles">'+planned.map(other=>'<option value="role:'+esc(other.id)+'">'+esc(other.title)+' (Rank '+Number(other.rank_code)+')</option>').join('')+'</optgroup><optgroup label="Departments">'+(depts.data||[]).map(d=>'<option value="department:'+esc(d.id)+'">'+esc(d.name)+'</option>').join('')+'</optgroup></select></label></div><div class="ec-position-form-grid ec-position-form-text"><label>Role description<textarea name="description" rows="3" maxlength="5000" placeholder="Optional description for future vacancies"></textarea></label><label>Requirements<textarea name="requirements" rows="3" maxlength="3000" placeholder="Optional requirements"></textarea></label></div><div class="ec-position-form-footer"><button class="button" type="submit">Save planned position</button></div></form></details>';
+  if(editingDraft){
+   const form=panel.querySelector('[data-position-create]');
+   form.dataset.positionEdit=editingDraft.id;
+   for(const [name,value] of Object.entries(editingDraft.values))if(form.elements[name])form.elements[name].value=value;
+   form.elements.reporting.value=editingDraft.reporting;
+   form.elements.reporting.dataset.dirty=editingDraft.dirty;
+   form.dataset.originalReporting=editingDraft.original;
+   form.closest('details').open=editingDraft.open;
+   panel.querySelector('[data-position-form-heading]').textContent='Edit planned position';
+   form.querySelector('[type=submit]').textContent='Save changes';
+  }
   panel.dataset.orgType=type;panel.dataset.orgId=id;
   const manager=root.querySelector('.ec-department-manager');if(manager)manager.after(panel);else root.prepend(panel);
  }
