@@ -1480,8 +1480,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
        const routed=route(hub,target);
        if(routed){
         if(!connected++)path([[px,a.b],hub]);
-        path(routed);
-        path([target,[target[0],r.t]]);
+        path([[px,a.b],hub,...routed.slice(1),[target[0],r.t]]);
        }else{
         // Expand the search using a simple clear perimeter corridor.
         // Never silently omit a saved reporting relationship.
@@ -1496,7 +1495,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
          const points=[hub,[side,hub[1]],[side,target[1]],target];
          if(points.every((p,i)=>!i||clearSegment(points[i-1],p))){fallback=points;break;}
         }
-        if(fallback){if(!connected++)path([[px,a.b],hub]);path(fallback);path([target,[target[0],r.t]]);}
+        if(fallback){if(!connected++)path([[px,a.b],hub]);path([[px,a.b],hub,...fallback.slice(1),[target[0],r.t]]);}
         else console.warn('Org chart: no collision-free reporting path',parent,r);
        }
       }
