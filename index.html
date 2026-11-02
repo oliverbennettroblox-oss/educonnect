@@ -1340,7 +1340,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
  const key=x=>[x.department_id,String(x.title||'').trim().toLowerCase(),Number(x.rank_code)].join('|');
  const card=(p,count,v)=>'<div class="ec-hierarchy-person ec-hierarchy-profile-card ec-position-vacant"><div class="ec-hierarchy-profile-button"><span class="ec-hierarchy-avatar ec-hierarchy-avatar-placeholder" aria-hidden="true">+</span><span class="ec-hierarchy-person-info"><strong>'+esc(p.title)+(count>1?' ×'+count:'')+'</strong><small>'+(v?'Applications open':'Position unfilled')+'</small></span></div>'+(v?'<button class="button light ec-position-action" type="button" data-position-apply="'+esc(v.id)+'">Apply now</button>':'')+'</div>';
  async function enhance(type,id,publicView){
-  const root=document.getElementById('ecOrgStaffChart');if(!root)return;
+  const root=document.getElementById(publicView?'ecSharedOrgChart':'ecOrgStaffChart');if(!root)return;
   const [positions,staff,manual,vacancies,depts]=await Promise.all([
    db.from('ec_org_positions').select('*').eq('org_type',type).eq('org_id',id),
    db.from('ec_org_staff').select('job_title,department_id,rank_code').eq('org_type',type).eq('org_id',id).eq('status','accepted'),
@@ -1348,7 +1348,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    db.from('ec_org_vacancies').select('id,title,department_id,rank_code').eq('org_type',type).eq('org_id',id).eq('status','open'),
    db.from('ec_org_departments').select('id,name').eq('org_type',type).eq('org_id',id)
   ]);
-  if(positions.error||staff.error||vacancies.error||depts.error)return;
+  if(positions.error||staff.error||vacancies.error||depts.error){console.warn('Planned positions could not load',positions.error||staff.error||vacancies.error||depts.error);return;}
   if(!root.isConnected)return;
   root.querySelectorAll('.ec-position-vacant,.ec-position-manager').forEach(el=>el.remove());
   const allStaff=[...(staff.data||[]),...(manual.data||[])];
