@@ -1553,7 +1553,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      const members=occupiedStaff(p);
      if(members.length<Number(p.planned_count||1))node.classList.add('vacant');
      node.dataset.mapId=p.id;node.dataset.departmentId=p.department_id||'';
-     node.innerHTML='<span class="ec-org-map-role-head"><span class="ec-org-map-avatar ec-org-map-avatar-empty">◈</span><span><strong>'+esc(p.title)+'</strong><small>'+esc(deptName.get(p.department_id)||'Unassigned')+' · Rank '+Number(p.rank_code)+'</small></span></span>'+memberMarkup(p);
+     node.innerHTML=members.length===1&&Number(p.planned_count||1)===1?'<span class="ec-org-map-role-head">'+avatar(members[0])+'<span><strong>'+esc(memberName(members[0]))+'</strong><small>'+esc(p.title)+'</small><small>'+esc(deptName.get(p.department_id)||'Unassigned')+' · Rank '+Number(p.rank_code)+'</small></span></span>':'<span class="ec-org-map-role-head"><span class="ec-org-map-avatar ec-org-map-avatar-empty">◈</span><span><strong>'+esc(p.title)+'</strong><small>'+esc(deptName.get(p.department_id)||'Unassigned')+' · Rank '+Number(p.rank_code)+'</small></span></span>'+memberMarkup(p);
      if(Number(p.planned_count||1)>1)node.classList.add('multi-seat','expanded');
      const x=Number(saved[p.id]?.x),y=Number(saved[p.id]?.y);
      node.style.left=(Number.isFinite(x)?Math.round(x/20)*20:60+(i%4)*260)+'px';
@@ -1573,6 +1573,9 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     }
     const redraw=()=>{
      svg.replaceChildren();
+     const mapWidth=Math.max(1600,layer.scrollWidth),mapHeight=Math.max(1200,layer.scrollHeight);
+     svg.setAttribute('viewBox','0 0 '+mapWidth+' '+mapHeight);
+     svg.setAttribute('width',mapWidth);svg.setAttribute('height',mapHeight);
      departmentLayer.replaceChildren();
      for(const dept of depts.data||[]){
       const nodes=[...layer.querySelectorAll('.ec-org-map-card')].filter(n=>n.dataset.departmentId===String(dept.id));
@@ -1593,6 +1596,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       const from=obstacles.find(o=>o.node===a),to=obstacles.find(o=>o.node===b);
       if(!from||!to)return;
       const step=10,pad=8;
+      const maxGridX=Math.max(160,Math.ceil(layer.scrollWidth/step)+15),maxGridY=Math.max(120,Math.ceil(layer.scrollHeight/step)+15);
       const sx=Math.round((from.x+from.w/2)/step),sy=Math.round((from.y+from.h+20)/step);
       const tx=Math.round((to.x+to.w/2)/step),ty=Math.round((to.y-20)/step);
       const blocked=(x,y)=>obstacles.some(o=>o.node!==a&&o.node!==b&&x*step>=o.x-pad&&x*step<=o.x+o.w+pad&&y*step>=o.y-pad&&y*step<=o.y+o.h+pad);
@@ -1607,14 +1611,19 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
        if(cur.x===tx&&cur.y===ty){end=cur;break;}
        for(const [dx,dy,dir] of [[1,0,1],[-1,0,1],[0,1,2],[0,-1,2]]){
         const x=cur.x+dx,y=cur.y+dy;
-        if(x<0||y<0||x>160||y>120||blocked(x,y))continue;
+        if(x<0||y<0||x>maxGridX||y>maxGridY||blocked(x,y))continue;
         const cost=cur.c+1+(cur.d&&cur.d!==dir?4:0);
         const k=key(x,y,dir);if(cost>=(best.get(k)??Infinity))continue;
         best.set(k,cost);
         queue.push({x,y,d:dir,c:cost,score:cost+Math.abs(x-tx)+Math.abs(y-ty),prev:cur});
        }
       }
-      if(!end)return;
+      if(!end){
+       // Never silently erase a reporting relationship when no obstacle-free route exists.
+       const fallback=document.createElementNS('http://www.w3.org/2000/svg','path');
+       fallback.setAttribute('d','M'+(from.x+from.w/2)+' '+(from.y+from.h)+' L'+(to.x+to.w/2)+' '+to.y);
+       fallback.setAttribute('fill','none');fallback.setAttribute('stroke','#c58b48');fallback.setAttribute('stroke-width','2');fallback.setAttribute('stroke-dasharray','5 5');svg.appendChild(fallback);return;
+      }
       const points=[];for(let p=end;p;p=p.prev)points.push([p.x*step,p.y*step]);points.reverse();
       const segments=[[from.x+from.w/2,from.y+from.h],...points,[to.x+to.w/2,to.y]];
       const clean=segments.filter((p,i)=>i===0||p[0]!==segments[i-1][0]||p[1]!==segments[i-1][1]);
@@ -1690,7 +1699,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       menu.hidden=true;
       if(action==='staff-view'||action==='departure'){
        const m=allMembers.find(x=>String(x.id)===String(memberId));
-       if(m){const selector=action==='staff-view'?'[data-staff-view="'+CSS.escape(String(m.user_id||''))+'"]':'[data-chart-remove="'+CSS.escape(String(m.id))+'"]';const button=root.querySelector(selector);if(button)button.click();else ecNotice(action==='departure'?'Complete departures from Staff career records.':'Open the linked professional profile from Find People.','info');}
+       if(m){const selector=action==='staff-view'?'[data-staff-view="'+CSS.escape(String(m.user_id||''))+'"]':'[data-chart-remove="'+CSS.escape(String(m.id))+'"]';const button=root.querySelector(selector);if(button)button.click();else if(action==='staff-view'&&m.user_id){const direct=document.querySelector('[data-staff-view="'+CSS.escape(String(m.user_id))+'"]');if(direct)direct.click();else ecNotice('The linked profile could not be opened.','error');}else ecNotice(action==='departure'?'Complete departures from Staff career records.':'No connected profile is available for this staff record.','info');}
        return;
       }
       if(action==='close')return;
