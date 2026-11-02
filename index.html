@@ -1595,6 +1595,8 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      };
      for(const p of positions.data||[]){
       if(!p.reports_to_position_id)continue;
+      const parent=roleById.get(p.reports_to_position_id);
+      if(!parent||String(parent.department_id)!==String(p.department_id))continue;
       const a=layer.querySelector('[data-map-id="'+CSS.escape(p.reports_to_position_id)+'"]'),b=layer.querySelector('[data-map-id="'+CSS.escape(p.id)+'"]');
       if(a&&b)makeLine(a,b);
      }
@@ -1614,6 +1616,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      if(!from||!to||from===to)return;
      const parent=await ensureRole(to),child=await ensureRole(from);
      if(!parent||!child)return;
+     if(String(parent.department_id)!==String(child.department_id)){alert('Staff and roles can only report to another role in the same department. Connect departments at department level instead.');return;}
      if(Number(parent.rank_code)<=Number(child.rank_code)){alert('The reporting manager must have a higher Rank ID.');return;}
      const r=await db.from('ec_org_positions').update({reports_to_position_id:parent.id,reports_to_department_id:null}).eq('id',child.id).eq('org_type',type).eq('org_id',id);
      if(r.error)alert(r.error.message);else await renderOrganisationChart(type,id);
@@ -1640,7 +1643,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      menu.dataset.staffId='';
      menu.innerHTML='<strong>'+esc(p.title)+'</strong>'+memberMarkup(p)+(Number(p.planned_count||1)>1?'<button type="button" data-map-action="expand">'+(node.classList.contains('expanded')?'Collapse':'Expand')+' people</button>':'')+members.map(m=>'<button type="button" data-map-staff="'+esc(m.id)+'" data-map-action="staff-view">'+esc(memberName(m))+' · View profile</button><button type="button" data-map-staff="'+esc(m.id)+'" data-map-action="departure">'+esc(memberName(m))+' · Complete departure</button>').join('')+'<button type="button" data-map-action="recruit">Recruit / applications</button>'+(members.length?'<button type="button" data-map-action="staff">View staff details</button>':'')+(editMode?'<button type="button" data-map-action="edit">Edit role</button><button type="button" data-map-action="connect">Set reporting manager</button><button type="button" data-map-action="remove">Remove role</button>':'')+'<button type="button" data-map-action="close">Close</button>';
     };
-    layer.addEventListener('click',e=>{
+    layer.addEventListener('click',async e=>{
      const node=e.target.closest('.ec-org-map-card');if(!node)return;
      if(node.dataset.justDragged){delete node.dataset.justDragged;return;}
      if(node.dataset.staffId&&!node.dataset.mapId){const m=allMembers.find(x=>String(x.id)===node.dataset.staffId);if(m){menu.hidden=false;menu.dataset.staffId=m.id;menu.dataset.roleId='';menu.innerHTML='<strong>'+esc(memberName(m))+'</strong>'+(editMode?'<button type="button" data-map-action="connect">Set reporting manager</button><button type="button" data-map-action="role-setup">Create / configure role and reporting</button>':'')+'<button type="button" data-map-action="staff-view">View profile</button><button type="button" data-map-action="departure">Complete departure / remove</button><button type="button" data-map-action="close">Close</button>';}return;}
