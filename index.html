@@ -1278,7 +1278,10 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   }
   if(publicView)return;
   const panel=document.createElement('section');panel.className='ec-department-manager ec-position-manager';
-  panel.innerHTML='<div><strong>Planned positions</strong><p class="small">Unfilled roles appear in the existing organisation chart. Accepted appointments reduce vacancies automatically.</p></div><form class="form" data-position-create><label>Role title<input name="title" required maxlength="120" placeholder="e.g. Teacher of English"></label><label>Department<select name="department_id" required><option value="">Select department</option>'+(depts.data||[]).map(d=>'<option value="'+esc(d.id)+'">'+esc(d.name)+'</option>').join('')+'</select></label><label>Rank ID<input type="number" name="rank_code" min="1" max="255" value="1" required></label><label>Number of positions<input type="number" name="planned_count" min="1" max="500" value="1" required></label><label>Role description<textarea name="description" rows="3" maxlength="5000" placeholder="Reusable when recruiting"></textarea></label><label>Requirements<textarea name="requirements" rows="2" maxlength="3000"></textarea></label><button class="button" type="submit">Add planned role</button></form><div class="ec-department-manage-list">'+(positions.data||[]).map(p=>'<div class="ec-department-config"><strong>'+esc(p.title)+' ×'+p.planned_count+'</strong><button type="button" class="button light" data-position-recruit="'+esc(p.id)+'">Recruit</button><button type="button" class="button light" data-position-delete="'+esc(p.id)+'">Remove</button></div>').join('')+'</div>';
+  const planned=positions.data||[];
+  const deptNames=new Map((depts.data||[]).map(d=>[d.id,d.name]));
+  const roleRows=planned.map(p=>'<div class="ec-position-list-row"><div class="ec-position-list-icon" aria-hidden="true">◈</div><div class="ec-position-list-copy"><strong>'+esc(p.title)+'</strong><small>'+esc(deptNames.get(p.department_id)||'Department')+' · Rank '+Number(p.rank_code)+' · '+Number(p.planned_count)+' planned</small></div><div class="ec-position-row-actions"><button type="button" class="button light" data-position-recruit="'+esc(p.id)+'">Recruit</button><button type="button" class="button light ec-position-remove" data-position-delete="'+esc(p.id)+'" aria-label="Remove '+esc(p.title)+'">Remove</button></div></div>').join('');
+  panel.innerHTML='<div class="ec-position-manager-head"><div><span class="ec-position-eyebrow">WORKFORCE PLANNING</span><h3>Planned positions</h3><p class="small">Plan your staffing structure. Unfilled roles appear on the organisation chart, and appointments reduce vacancies automatically.</p></div><span class="ec-position-count">'+planned.length+' role'+(planned.length===1?'':'s')+'</span></div><div class="ec-position-list">'+(roleRows||'<div class="ec-position-empty">No positions planned yet. Add a role to start building your staffing structure.</div>')+'</div><details class="ec-position-add"><summary><span aria-hidden="true">＋</span> Add a planned position <span class="ec-position-chevron" aria-hidden="true">⌄</span></summary><form class="form ec-position-form" data-position-create><div class="ec-position-form-grid"><label>Role title<input name="title" required maxlength="120" placeholder="e.g. Director of People"></label><label>Department<select name="department_id" required><option value="">Select department</option>'+(depts.data||[]).map(d=>'<option value="'+esc(d.id)+'">'+esc(d.name)+'</option>').join('')+'</select></label><label>Rank ID<input type="number" name="rank_code" min="1" max="255" value="1" required></label><label>Number of positions<input type="number" name="planned_count" min="1" max="500" value="1" required></label></div><div class="ec-position-form-grid ec-position-form-text"><label>Role description<textarea name="description" rows="3" maxlength="5000" placeholder="Optional description for future vacancies"></textarea></label><label>Requirements<textarea name="requirements" rows="3" maxlength="3000" placeholder="Optional requirements"></textarea></label></div><div class="ec-position-form-footer"><button class="button" type="submit">Save planned position</button></div></form></details>';
   panel.dataset.orgType=type;panel.dataset.orgId=id;
   const manager=root.querySelector('.ec-department-manager');if(manager)manager.after(panel);else root.prepend(panel);
  }
@@ -1399,8 +1402,34 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
 .ec-position-vacant{border:1px dashed var(--line)!important;background:transparent!important;box-shadow:none!important}
 .ec-position-vacant .ec-hierarchy-avatar-placeholder{opacity:.65}
 .ec-position-action{margin:0 12px 12px!important;font-size:12px!important;padding:7px 12px!important}
-.ec-position-manager{margin-top:18px}
-.ec-position-manager form{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
-.ec-position-manager form label{flex:1 1 160px}
+.ec-position-manager{margin-top:20px;padding:24px!important}
+.ec-position-manager-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+.ec-position-manager-head h3{margin:5px 0 6px;font-size:20px;letter-spacing:-.025em}
+.ec-position-manager-head p{max-width:620px;margin:0;line-height:1.55}
+.ec-position-eyebrow{font-size:10px;letter-spacing:.12em;font-weight:800;color:#31755f}
+.ec-position-count{flex:none;padding:7px 11px;border-radius:999px;background:#eaf4ee;color:#245b46;font-size:12px;font-weight:750}
+.ec-position-list{display:grid;gap:9px;margin-bottom:16px}
+.ec-position-list-row{display:flex;align-items:center;gap:13px;padding:13px 15px;border:1px solid #e1e9e4;border-radius:12px;background:#fff}
+.ec-position-list-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:#eef5f0;color:#306b54;flex:none;font-size:19px}
+.ec-position-list-copy{flex:1;min-width:0;display:grid;gap:4px}
+.ec-position-list-copy strong{font-size:14px;overflow-wrap:anywhere}
+.ec-position-list-copy small{color:#66776e;font-size:12px}
+.ec-position-row-actions{display:flex;gap:7px;flex-wrap:wrap}
+.ec-position-row-actions button{font-size:12px!important;padding:7px 12px!important}
+.ec-position-remove{color:#7b4545!important}
+.ec-position-empty{padding:22px;border:1px dashed #cdded2;border-radius:12px;color:#63766a;font-size:13px;text-align:center}
+.ec-position-add{border:1px solid #dce9df;border-radius:12px;overflow:hidden;background:#f8fbf9}
+.ec-position-add summary{cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 16px;font-size:13px;font-weight:750;color:#245c47;list-style:none}
+.ec-position-add summary::-webkit-details-marker{display:none}
+.ec-position-add summary>span:first-child{font-size:20px;font-weight:400}
+.ec-position-chevron{margin-left:auto;font-size:17px}
+.ec-position-add[open] .ec-position-chevron{transform:rotate(180deg)}
+.ec-position-form{padding:18px;border-top:1px solid #dce9df;background:white}
+.ec-position-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ec-position-form label{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:650;min-width:0}
+.ec-position-form label input,.ec-position-form label select,.ec-position-form label textarea{width:100%;box-sizing:border-box}
+.ec-position-form-text{margin-top:14px}
+.ec-position-form-footer{display:flex;justify-content:flex-end;margin-top:16px}
+@media(max-width:650px){.ec-position-manager{padding:16px!important}.ec-position-form-grid{grid-template-columns:1fr}.ec-position-list-row{flex-wrap:wrap}.ec-position-row-actions{width:100%;padding-left:49px}.ec-position-manager-head{gap:8px}}
 </style>
 </body></html>
