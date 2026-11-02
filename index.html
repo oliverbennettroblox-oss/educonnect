@@ -494,7 +494,21 @@ body:has([data-school-hub-panel="timetable"]) [data-school-hub-panel="timetable"
 .ec-reporting-integrated .ec-report-card-group{display:flex;flex:none;gap:12px;align-items:stretch}
 .ec-reporting-integrated .ec-report-card-group>.ec-hierarchy-person{flex:none!important;width:190px;max-width:240px}
 </style>
-</head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Find MATs</button><button data-page="org-jobs" onclick="go('org-jobs')">Find a job</button><button data-page="community" onclick="go('community')">Find People</button><button data-page="resources" onclick="go('resources')">Resources Library</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('learning')">EduCareer</button><button onclick="go('providers')">Education providers</button><button onclick="go('standards')">Standards & inspections</button><button onclick="go('suggestions')">Suggestions</button><button onclick="go('book-demo')">Book a demo</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('resources')">Resources Library</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
+<style>
+.ec-org-map{margin:12px 0;border:1px solid #d8e7dd;border-radius:14px;background:#f6faf7;overflow:hidden}
+.ec-org-map-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 16px;background:#fff;border-bottom:1px solid #d8e7dd}
+.ec-org-map-toolbar button,.ec-org-map-menu button{border:1px solid #cbded1;border-radius:8px;background:#fff;padding:8px 12px;cursor:pointer}
+.ec-org-map-toolbar span{font-size:12px;color:#557367}
+.ec-org-map-canvas{height:610px;overflow:auto;position:relative;background-image:linear-gradient(#dce9e044 1px,transparent 1px),linear-gradient(90deg,#dce9e044 1px,transparent 1px);background-size:20px 20px}
+.ec-org-map-cards{position:relative;width:1600px;height:1200px}
+.ec-org-map-lines{position:absolute;top:0;left:0;width:1600px;height:1200px;pointer-events:none}
+.ec-org-map-card{position:absolute;width:225px;min-height:105px;display:flex;flex-direction:column;gap:7px;align-items:flex-start;text-align:left;background:#fff;border:1px solid #c9dfd0;border-radius:12px;padding:15px;cursor:grab;touch-action:none;user-select:none;color:#194d3c}
+.ec-org-map-card.vacant{border-style:dashed}
+.ec-org-map-card:active{cursor:grabbing}
+.ec-org-map-card small{font-size:12px;color:#60786c}
+.ec-org-map-menu{position:relative;background:#fff;border-top:1px solid #d8e7dd;padding:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ec-org-map-menu[hidden],.ec-org-map[hidden]{display:none!important}
+</style></head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Find MATs</button><button data-page="org-jobs" onclick="go('org-jobs')">Find a job</button><button data-page="community" onclick="go('community')">Find People</button><button data-page="resources" onclick="go('resources')">Resources Library</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('learning')">EduCareer</button><button onclick="go('providers')">Education providers</button><button onclick="go('standards')">Standards & inspections</button><button onclick="go('suggestions')">Suggestions</button><button onclick="go('book-demo')">Book a demo</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('resources')">Resources Library</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
 const schools=[];
 const documents=[{id:'primary',category:'Curriculum',title:'Primary curriculum framework',desc:'Learning aims, subject expectations and sample timetabling for primary schools.',sections:[['Purpose','A flexible framework for primary schools to plan purposeful lessons and age-appropriate learning experiences.'],['Core learning areas','English and communication, mathematics, science, digital literacy, humanities and creative learning.'],['Implementation','Publish a curriculum overview, plan progressive learning objectives and review pupil experience each term.'],['Evidence for review','Sample lesson plans, timetables, resources and examples of pupil work created within the Roblox environment.']]},{id:'secondary',category:'Curriculum',title:'Secondary curriculum framework',desc:'Subject progression, assessment principles and enrichment for secondary schools.',sections:[['Purpose','A coherent secondary programme balancing knowledge, skills, creative work and student choice.'],['Core provision','English, mathematics, science, humanities, computing, creative subjects and personal development.'],['Assessment','Use transparent criteria, proportionate feedback and opportunities for students to demonstrate progress.'],['Quality checks','Review subject coverage, teaching consistency and accessibility of learning materials.']]},{id:'post16',category:'Curriculum',title:'Post-16 and vocational framework',desc:'Programme planning for sixth forms, colleges and specialist providers.',sections:[['Programme design','Set out the purpose, entry expectations, timetable and outcomes of each course.'],['Learning pathways','Offer academic, creative, technical or vocational pathways appropriate to your Roblox setting.'],['Review','Gather learner feedback and examples of project work to evaluate programme quality.']]},{id:'safeguarding',category:'Policy',title:'Safeguarding and online conduct',desc:'Minimum expectations for safe communication, reporting and moderation.',sections:[['Scope','Participating schools must follow Roblox platform rules and applicable safeguarding obligations.'],['Conduct','No requests for private personal details, off-platform contact or inappropriate conversations with young users.'],['Reporting','Publish clear reporting routes, appoint responsible moderators and escalate serious concerns to appropriate real-world services.'],['Review','Review moderation logs and the policy regularly.']]},{id:'conduct',category:'Policy',title:'Staff code of conduct',desc:'Professional expectations for school leaders, teachers and volunteers.',sections:[['Professional behaviour','Treat all community members respectfully, avoid favouritism and use approved communication channels.'],['Accountability','Define staff responsibilities, moderation permissions and an accessible complaints process.'],['Conflicts of interest','Disclose relevant commercial or personal interests when making decisions.']]},{id:'admissions',category:'Policy',title:'Admissions and inclusion',desc:'Fair access, transparent entry criteria and inclusive participation.',sections:[['Admissions','Publish clear entry requirements and avoid arbitrary or discriminatory selection.'],['Accessibility','Offer accessible ways to participate and reasonable alternatives where possible.'],['Appeals','Provide a straightforward way to question an admissions decision.']]},{id:'inspection',category:'Guidance',title:'School review handbook',desc:'What inspectors consider, how evidence is reviewed and how outcomes are published.',sections:[['Before the review','Schools receive a scope statement and an evidence checklist.'],['Review areas','Educational experience, leadership, community safety, inclusion and technical reliability.'],['Outcome','A written report highlights strengths, development priorities and a follow-up plan.'],['Fairness','Schools can respond to factual inaccuracies before publication.']]},{id:'registration',category:'Guidance',title:'School registration guide',desc:'Eligibility, required information and the review process for new applicants.',sections:[['Who can apply','Roblox schools and education providers willing to follow educonnect participation standards.'],['What to prepare','School name, Roblox group, leadership contact, school phase and a brief description of provision.'],['What happens next','An educonnect reviewer checks the submission before a school can be listed as registered.']]}];
 const app=document.getElementById('app');let current='home',filter='All',query='';function toggleNav(){let n=document.getElementById('nav');n.classList.toggle('open');document.getElementById('mobileToggle').setAttribute('aria-expanded',n.classList.contains('open'))}const ecDraftPrefix='ec-draft-v1:';function ecDraftKey(form){const page=current||location.hash.slice(1)||'home';return ecDraftPrefix+page+':'+(form.id||form.getAttribute('data-draft-form')||Array.from(document.forms).indexOf(form));}function ecSaveDrafts(){document.querySelectorAll('form').forEach(f=>{if(f.closest('.ec-auth-page')||f.dataset.noDraft==='true')return;const data={};f.querySelectorAll('input,textarea,select').forEach((el,i)=>{if(el.disabled||['password','file','hidden','submit','button'].includes(el.type)||el.name==='recipient')return;const key=el.name||el.id||String(i);data[key]=el.type==='checkbox'?el.checked:el.value;});if(Object.keys(data).length)try{sessionStorage.setItem(ecDraftKey(f),JSON.stringify(data))}catch(e){}});}function ecRestoreDrafts(){document.querySelectorAll('form').forEach(f=>{if(f.closest('.ec-auth-page')||f.dataset.noDraft==='true')return;let data;try{data=JSON.parse(sessionStorage.getItem(ecDraftKey(f))||'null')}catch(e){}if(!data)return;f.querySelectorAll('input,textarea,select').forEach((el,i)=>{if(el.disabled||['password','file','hidden','submit','button'].includes(el.type)||el.name==='recipient')return;const key=el.name||el.id||String(i);if(!(key in data)||el.value&&el.value!==el.defaultValue)return;if(el.type==='checkbox')el.checked=!!data[key];else el.value=data[key];});});}document.addEventListener('input',e=>{if(e.target.closest('form'))ecSaveDrafts();});document.addEventListener('change',e=>{if(e.target.closest('form'))ecSaveDrafts();});window.addEventListener('pagehide',ecSaveDrafts);document.addEventListener('submit',e=>{const f=e.target;if(!f||!f.matches('form'))return;setTimeout(()=>{if(!f.isConnected||f.querySelector('[role=status]')?.textContent?.toLowerCase().includes('success')){try{sessionStorage.removeItem(ecDraftKey(f))}catch(e){}}},1200);});const ecDraftObserver=new MutationObserver(()=>{if(window.ecDraftRestoreQueued)return;window.ecDraftRestoreQueued=true;queueMicrotask(()=>{window.ecDraftRestoreQueued=false;ecRestoreDrafts();});});ecDraftObserver.observe(document.getElementById('app'),{childList:true,subtree:true});
@@ -1505,6 +1519,106 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    requestAnimationFrame(draw);
    // Avoid observing the SVG's own dimensions: that caused repeated redraws and layout jumps.
    window.addEventListener('resize',draw,{passive:true});
+  }
+  // Editable map uses the same positions, vacancies and departments as the
+  // existing organisation chart; it never creates a second reporting model.
+  if(!publicView){
+   const chartView=root.querySelector('.ec-org-chart-hierarchy');
+   if(chartView){
+    const keyName='ec-org-map:'+type+':'+id;
+    const saved=JSON.parse(localStorage.getItem(keyName)||'{}');
+    const map=document.createElement('section');map.className='ec-org-map';map.dataset.orgType=type;map.dataset.orgId=id;
+    map.innerHTML='<div class="ec-org-map-toolbar"><strong>Organisation map</strong><button type="button" data-map-add>Add role</button><button type="button" data-map-department>Add department</button><button type="button" data-map-mode>Switch to chart</button><span>Drag cards to arrange. Select a card to edit or connect it.</span></div><div class="ec-org-map-canvas"><svg class="ec-org-map-lines" aria-hidden="true"></svg><div class="ec-org-map-cards"></div></div><div class="ec-org-map-menu" hidden></div>';
+    chartView.before(map);
+    const canvas=map.querySelector('.ec-org-map-canvas'),layer=map.querySelector('.ec-org-map-cards'),svg=map.querySelector('svg'),menu=map.querySelector('.ec-org-map-menu');
+    const deptName=new Map((depts.data||[]).map(d=>[d.id,d.name]));
+    const roleById=new Map((positions.data||[]).map(p=>[p.id,p]));
+    const placed=(positions.data||[]).map((p,i)=>{
+     const node=document.createElement('button');node.type='button';node.className='ec-org-map-card';
+     const occupied=allStaff.some(x=>x.department_id===p.department_id&&Number(x.rank_code)===Number(p.rank_code)&&String(x.job_title||'').trim().toLowerCase()===String(p.title).trim().toLowerCase());
+     if(!occupied)node.classList.add('vacant');
+     node.dataset.mapId=p.id;
+     node.innerHTML='<strong>'+esc(p.title)+'</strong><small>'+esc(deptName.get(p.department_id)||'Unassigned')+' · Rank '+Number(p.rank_code)+'</small><small>'+(occupied?'Role assigned':'Position unfilled')+'</small>';
+     const x=Number(saved[p.id]?.x),y=Number(saved[p.id]?.y);
+     node.style.left=(Number.isFinite(x)?x:70+(i%4)*265)+'px';
+     node.style.top=(Number.isFinite(y)?y:65+Math.floor(i/4)*170)+'px';
+     layer.appendChild(node);return node;
+    });
+    const redraw=()=>{
+     svg.replaceChildren();
+     const box=canvas.getBoundingClientRect();
+     const pos=node=>{const r=node.getBoundingClientRect();return {x:r.left-box.left+canvas.scrollLeft+r.width/2,top:r.top-box.top+canvas.scrollTop,bottom:r.bottom-box.top+canvas.scrollTop};};
+     const makeLine=(a,b)=>{
+      const start=pos(a),end=pos(b),middle=(start.bottom+end.top)/2;
+      const d=end.top>=start.bottom+24?'M'+start.x+' '+start.bottom+' V'+middle+' H'+end.x+' V'+end.top:'M'+start.x+' '+start.bottom+' V'+(start.bottom+18)+' H'+(Math.max(start.x,end.x)+35)+' V'+(end.top-18)+' H'+end.x+' V'+end.top;
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);path.setAttribute('fill','none');path.setAttribute('stroke','#79a98f');path.setAttribute('stroke-width','2');svg.appendChild(path);
+     };
+     for(const p of positions.data||[]){
+      if(!p.reports_to_position_id)continue;
+      const a=layer.querySelector('[data-map-id="'+CSS.escape(p.reports_to_position_id)+'"]'),b=layer.querySelector('[data-map-id="'+CSS.escape(p.id)+'"]');
+      if(a&&b)makeLine(a,b);
+     }
+    };
+    const persist=()=>{const state={};for(const node of placed)state[node.dataset.mapId]={x:parseFloat(node.style.left),y:parseFloat(node.style.top)};localStorage.setItem(keyName,JSON.stringify(state));};
+    let drag=null,connectFrom=null;
+    layer.addEventListener('pointerdown',e=>{
+     const node=e.target.closest('[data-map-id]');if(!node||e.button!==0)return;
+     const r=canvas.getBoundingClientRect();drag={node,startX:e.clientX,startY:e.clientY,x:parseFloat(node.style.left),y:parseFloat(node.style.top),moved:false};
+     node.setPointerCapture(e.pointerId);
+    });
+    layer.addEventListener('pointermove',e=>{
+     if(!drag)return;
+     const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
+     if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;
+     if(!drag.moved)return;
+     drag.node.style.left=Math.max(0,Math.round((drag.x+dx)/10)*10)+'px';
+     drag.node.style.top=Math.max(0,Math.round((drag.y+dy)/10)*10)+'px';redraw();
+    });
+    layer.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;if(moved){persist();drag.node.dataset.justDragged='true';setTimeout(()=>delete drag?.node?.dataset.justDragged,0);}drag=null;});
+    const openMenu=(node)=>{
+     const p=roleById.get(node.dataset.mapId);if(!p)return;
+     const occupied=allStaff.some(x=>x.department_id===p.department_id&&Number(x.rank_code)===Number(p.rank_code)&&String(x.job_title||'').trim().toLowerCase()===String(p.title).trim().toLowerCase());
+     menu.hidden=false;menu.dataset.roleId=p.id;
+     menu.innerHTML='<strong>'+esc(p.title)+'</strong><button type="button" data-map-action="edit">Edit role</button><button type="button" data-map-action="connect">Set reporting manager</button><button type="button" data-map-action="recruit">Recruit / applications</button>'+(occupied?'<button type="button" data-map-action="staff">View staff details</button>':'')+'<button type="button" data-map-action="remove">Remove role</button><button type="button" data-map-action="close">Close</button>';
+    };
+    layer.addEventListener('click',e=>{
+     const node=e.target.closest('[data-map-id]');if(!node)return;
+     if(node.dataset.justDragged){delete node.dataset.justDragged;return;}
+     if(connectFrom){
+      const source=connectFrom;connectFrom=null;
+      if(source!==node.dataset.mapId){
+       const child=roleById.get(source),parent=roleById.get(node.dataset.mapId);
+       if(Number(parent.rank_code)<=Number(child.rank_code)){alert('The reporting manager must have a higher Rank ID.');return;}
+       db.from('ec_org_positions').update({reports_to_position_id:parent.id,reports_to_department_id:null}).eq('id',child.id).eq('org_type',type).eq('org_id',id).then(({error})=>{if(error)alert(error.message);else renderOrganisationChart(type,id);});
+      }
+      return;
+     }
+     openMenu(node);
+    });
+    layer.addEventListener('contextmenu',e=>{const node=e.target.closest('[data-map-id]');if(node){e.preventDefault();openMenu(node);}else{e.preventDefault();map.querySelector('[data-map-add]').click();}});
+    map.addEventListener('click',e=>{
+     const action=e.target.closest('[data-map-action]')?.dataset.mapAction;
+     if(action){
+      const roleId=menu.dataset.roleId;menu.hidden=true;
+      if(action==='close')return;
+      if(action==='connect'){connectFrom=roleId;map.querySelector('.ec-org-map-toolbar span').textContent='Select the manager this role should report to.';return;}
+      if(action==='staff'){chartView.hidden=false;chartView.scrollIntoView({block:'start'});return;}
+      const panel=root.querySelector('.ec-position-manager');
+      const target=panel?.querySelector('[data-position-'+(action==='remove'?'delete':action==='recruit'?'recruit':'edit')+'="'+CSS.escape(roleId)+'"]');
+      if(target){target.click();if(action==='edit')panel.scrollIntoView({block:'start'});}return;
+     }
+     if(e.target.closest('[data-map-add]')){root.querySelector('.ec-position-manager details.ec-position-add')?.setAttribute('open','');root.querySelector('.ec-position-manager')?.scrollIntoView({block:'start'});}
+     if(e.target.closest('[data-map-department]')){root.querySelector('[data-department-create]')?.scrollIntoView({block:'start'});}
+     if(e.target.closest('[data-map-mode]')){map.hidden=true;chartView.hidden=false;}
+    });
+    const controls=document.createElement('button');controls.type='button';controls.className='button light ec-org-map-toggle';controls.textContent='Open drag-and-drop map';
+    controls.addEventListener('click',()=>{map.hidden=false;chartView.hidden=true;requestAnimationFrame(redraw);});
+    map.before(controls);
+    if(localStorage.getItem(keyName+':enabled')==='1'){chartView.hidden=true;requestAnimationFrame(redraw);}
+    else map.hidden=true;
+    controls.addEventListener('click',()=>localStorage.setItem(keyName+':enabled','1'));
+    map.querySelector('[data-map-mode]').addEventListener('click',()=>localStorage.setItem(keyName+':enabled','0'));
+   }
   }
   if(publicView)return;
   if(keepEditor)return;
