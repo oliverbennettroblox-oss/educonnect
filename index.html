@@ -1428,6 +1428,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      while(queue.length&&iterations++<24000){
       queue.sort((a,b)=>a.c+Math.abs(xx[a.x]-end[0])+Math.abs(yy[a.y]-end[1])-(b.c+Math.abs(xx[b.x]-end[0])+Math.abs(yy[b.y]-end[1])));
       const cur=queue.shift();
+      if(cur.c!==(best.get(key(cur.x,cur.y,cur.d))??Infinity))continue;
       if(cur.x===tx&&cur.y===ty){found=cur;break;}
       for(const [dx,dy,d] of [[1,0,1],[-1,0,1],[0,1,2],[0,-1,2]]){
        const x=cur.x+dx,y=cur.y+dy;if(x<0||x>=xx.length||y<0||y>=yy.length)continue;
@@ -1436,7 +1437,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
        const samples=Math.max(1,Math.ceil(length/6));
        let hit=false;
        for(let t=1;t<samples;t++){if(blocked(x1+(x2-x1)*t/samples,y1+(y2-y1)*t/samples)){hit=true;break;}}
-       if(hit||blocked(x2,y2)&&!(x===tx&&y===ty))continue;
+       if(hit||(blocked(x2,y2)&&!(x===tx&&y===ty)))continue;
        const cost=cur.c+length+(cur.d&&cur.d!==d?8:0),k=key(x,y,d);
        if(cost>=(best.get(k)??Infinity))continue;
        best.set(k,cost);queue.push({x,y,d,c:cost,prev:cur});
@@ -1470,13 +1471,15 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      // connected network. Use the shortest obstacle-free orthogonal path
      // for every child instead of a horizontal bus that may cross cards.
      const hub=[px,a.b+14];
-     path([[px,a.b],hub]);
+     // Do not draw an orphaned manager stub unless a child is connected.
+     let connected=0;
      for(const [,row] of [...ranks].sort((a,b)=>b[0]-a[0])){
       const ordered=row.map(el=>({el,r:rect(el)})).sort((a,b)=>a.r.l-b.r.l);
       for(const {r} of ordered){
        const target=[(r.l+r.r)/2,r.t-12];
        const routed=route(hub,target);
        if(routed){
+        if(!connected++)path([[px,a.b],hub]);
         path(routed);
         path([target,[target[0],r.t]]);
        }else{
@@ -1493,7 +1496,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
          const points=[hub,[side,hub[1]],[side,target[1]],target];
          if(points.every((p,i)=>!i||clearSegment(points[i-1],p))){fallback=points;break;}
         }
-        if(fallback){path(fallback);path([target,[target[0],r.t]]);}
+        if(fallback){if(!connected++)path([[px,a.b],hub]);path(fallback);path([target,[target[0],r.t]]);}
         else console.warn('Org chart: no collision-free reporting path',parent,r);
        }
       }
