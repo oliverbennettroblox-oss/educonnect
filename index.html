@@ -1606,12 +1606,12 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      const members=occupiedStaff(p);
      menu.hidden=false;menu.dataset.roleId=p.id;
      menu.dataset.staffId='';
-     menu.innerHTML='<strong>'+esc(p.title)+'</strong>'+memberMarkup(p)+(Number(p.planned_count||1)>1?'<button type="button" data-map-action="expand">'+(node.classList.contains('expanded')?'Collapse':'Expand')+' people</button>':'')+members.map(m=>'<button type="button" data-map-staff="'+esc(m.id)+'" data-map-action="staff-view">'+esc(memberName(m))+' · View profile</button><button type="button" data-map-staff="'+esc(m.id)+'" data-map-action="departure">'+esc(memberName(m))+' · Complete departure</button>').join('')<button type="button" data-map-action="recruit">Recruit / applications</button>'+(members.length?'<button type="button" data-map-action="staff">View staff details</button>':'')+(editMode?'<button type="button" data-map-action="edit">Edit role</button><button type="button" data-map-action="connect">Set reporting manager</button><button type="button" data-map-action="remove">Remove role</button>':'')+'<button type="button" data-map-action="close">Close</button>';
+     menu.innerHTML='<strong>'+esc(p.title)+'</strong>'+memberMarkup(p)+(Number(p.planned_count||1)>1?'<button type="button" data-map-action="expand">'+(node.classList.contains('expanded')?'Collapse':'Expand')+' people</button>':'')+members.map(m=>'<button type="button" data-map-staff="'+esc(m.id)+'" data-map-action="staff-view">'+esc(memberName(m))+' · View profile</button><button type="button" data-map-staff="'+esc(m.id)+'" data-map-action="departure">'+esc(memberName(m))+' · Complete departure</button>').join('')+'<button type="button" data-map-action="recruit">Recruit / applications</button>'+(members.length?'<button type="button" data-map-action="staff">View staff details</button>':'')+(editMode?'<button type="button" data-map-action="edit">Edit role</button><button type="button" data-map-action="connect">Set reporting manager</button><button type="button" data-map-action="remove">Remove role</button>':'')+'<button type="button" data-map-action="close">Close</button>';
     };
     layer.addEventListener('click',e=>{
      const node=e.target.closest('.ec-org-map-card');if(!node)return;
-     if(node.dataset.staffId){const m=allMembers.find(x=>String(x.id)===node.dataset.staffId);if(m){menu.hidden=false;menu.dataset.staffId=m.id;menu.dataset.roleId='';menu.innerHTML='<strong>'+esc(memberName(m))+'</strong><button type="button" data-map-action="staff-view">View profile</button><button type="button" data-map-action="departure">Complete departure / remove</button><button type="button" data-map-action="close">Close</button>';}return;}
      if(node.dataset.justDragged){delete node.dataset.justDragged;return;}
+     if(node.dataset.staffId){const m=allMembers.find(x=>String(x.id)===node.dataset.staffId);if(m){menu.hidden=false;menu.dataset.staffId=m.id;menu.dataset.roleId='';menu.innerHTML='<strong>'+esc(memberName(m))+'</strong>'+(editMode?'<button type="button" data-map-action="role-setup">Create / configure role and reporting</button>':'')+'<button type="button" data-map-action="staff-view">View profile</button><button type="button" data-map-action="departure">Complete departure / remove</button><button type="button" data-map-action="close">Close</button>';}return;}
      if(connectFrom&&editMode){
       const source=connectFrom;connectFrom=null;
       if(source!==node.dataset.mapId){
@@ -1636,9 +1636,15 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
        return;
       }
       if(action==='close')return;
+      if(action==='role-setup'){
+       const m=allMembers.find(x=>String(x.id)===String(memberId));
+       const form=root.querySelector('.ec-position-manager [data-position-create]');
+       if(m&&form){form.reset();delete form.dataset.positionEdit;form.elements.title.value=m.job_title||'';form.elements.department.value=m.department_id||'';form.elements.rank.value=m.rank_code||'';form.closest('details')?.setAttribute('open','');form.scrollIntoView({block:'center'});ecNotice('Create the role structure here. This does not change the linked staff profile.','info');}
+       return;
+      }
       if(action==='expand'){const node=layer.querySelector('[data-map-id="'+CSS.escape(roleId)+'"]');if(node){node.classList.toggle('expanded');redraw();}return;}
       if(action==='connect'){connectFrom=roleId;map.querySelector('.ec-org-map-toolbar span').textContent='Select the manager this role should report to.';return;}
-      if(action==='staff'){chartView.hidden=false;chartView.scrollIntoView({block:'start'});return;}
+      if(action==='staff'){const first=occupiedStaff(roleById.get(roleId))[0];if(first){const button=root.querySelector('[data-staff-view="'+CSS.escape(String(first.user_id||''))+'"]');if(button)button.click();else ecNotice('Staff details are available in Find People.','info');}return;}
       const panel=root.querySelector('.ec-position-manager');
       const target=panel?.querySelector('[data-position-'+(action==='remove'?'delete':action==='recruit'?'recruit':'edit')+'="'+CSS.escape(roleId)+'"]');
       if(target){target.click();if(action==='edit')panel.scrollIntoView({block:'start'});}return;
