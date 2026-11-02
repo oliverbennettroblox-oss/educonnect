@@ -1319,17 +1319,55 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    const draw=()=>{
     svg.replaceChildren();
     const base=chart.getBoundingClientRect();
-    svg.setAttribute('width',String(chart.scrollWidth));svg.setAttribute('height',String(chart.scrollHeight));
+    const width=chart.scrollWidth,height=chart.scrollHeight;
+    svg.setAttribute('width',String(width));svg.setAttribute('height',String(height));
+    const rect=el=>{const r=el.getBoundingClientRect();return {l:r.left-base.left+chart.scrollLeft,t:r.top-base.top+chart.scrollTop,r:r.right-base.left+chart.scrollLeft,b:r.bottom-base.top+chart.scrollTop};};
+    // Treat every card and department header as a solid obstacle.
+    const obstacles=[...chart.querySelectorAll('.ec-hierarchy-person,.ec-hierarchy-head')].filter(el=>el.getClientRects().length).map(rect);
+    const margin=9,step=12;
+    const blocked=(x,y)=>obstacles.some(o=>x>o.l-margin&&x<o.r+margin&&y>o.t-margin&&y<o.b+margin);
     const line=(from,to)=>{
-     if(!from||!to)return;
-     const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();
-     const x1=a.left+a.width/2-base.left+chart.scrollLeft,y1=a.bottom-base.top+chart.scrollTop;
-     const x2=b.left+b.width/2-base.left+chart.scrollLeft,y2=b.top-base.top+chart.scrollTop;
-     const middle=(y1+y2)/2;
+     if(!from||!to||from===to)return;
+     const a=rect(from),b=rect(to);
+     const sx=(a.l+a.r)/2,tx=(b.l+b.r)/2;
+     const downward=b.t>=a.b;
+     const start={x:sx,y:downward?a.b+margin+2:a.t-margin-2};
+     const end={x:tx,y:downward?b.t-margin-2:b.b+margin+2};
+     // Route in a rectilinear grid, avoiding all unrelated cards.
+     // A* penalises turns so paths stay clean instead of zigzagging.
+     const cols=Math.ceil(width/step)+1,rows=Math.ceil(height/step)+1;
+     const key=(x,y)=>y*cols+x;
+     const cell=p=>({x:Math.max(0,Math.min(cols-1,Math.round(p.x/step))),y:Math.max(0,Math.min(rows-1,Math.round(p.y/step)))});
+     const source=cell(start),target=cell(end),sourceKey=key(source.x,source.y),targetKey=key(target.x,target.y);
+     const clear=(x,y)=>!blocked(x*step,y*step);
+     if(!clear(source.x,source.y)||!clear(target.x,target.y))return;
+     const queue=[{x:source.x,y:source.y,g:0,f:Math.abs(source.x-target.x)+Math.abs(source.y-target.y),dir:-1}];
+     const best=new Map([[sourceKey+':-1',0]]),previous=new Map();
+     let found=null,iterations=0;
+     while(queue.length&&iterations++<65000){
+      let min=0;for(let i=1;i<queue.length;i++)if(queue[i].f<queue[min].f)min=i;
+      const node=queue.splice(min,1)[0],nk=key(node.x,node.y)+':'+node.dir;
+      if(node.g!==best.get(nk))continue;
+      if(key(node.x,node.y)===targetKey){found=nk;break;}
+      for(let d=0;d<4;d++){
+       const nx=node.x+[1,-1,0,0][d],ny=node.y+[0,0,1,-1][d];
+       if(nx<0||ny<0||nx>=cols||ny>=rows||!clear(nx,ny))continue;
+       const g=node.g+1+(node.dir!==-1&&node.dir!==d?2:0);
+       const next=key(nx,ny)+':'+d;
+       if(g>=(best.get(next)??Infinity))continue;
+       best.set(next,g);previous.set(next,nk);
+       queue.push({x:nx,y:ny,g,dir:d,f:g+Math.abs(nx-target.x)+Math.abs(ny-target.y)});
+      }
+     }
+     if(!found)return; // Never draw a connector through a card.
+     const points=[];
+     for(let k=found;k;k=previous.get(k)){const n=Number(k.split(':')[0]);points.push({x:(n%cols)*step,y:Math.floor(n/cols)*step});}
+     points.reverse();
+     const simplified=[start,...points.filter((p,i)=>i===0||i===points.length-1||(points[i-1].x-p.x)*(points[i+1].y-p.y)!==(points[i+1].x-p.x)*(points[i-1].y-p.y)),end];
      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
-     path.setAttribute('d','M'+x1+' '+y1+' V'+middle+' H'+x2+' V'+y2);
+     path.setAttribute('d','M'+sx+' '+(downward?a.b:a.t)+' L'+simplified.map(p=>p.x+' '+p.y).join(' L')+' L'+tx+' '+(downward?b.t:b.b));
      path.setAttribute('fill','none');path.setAttribute('stroke','#7cae93');path.setAttribute('stroke-width','2');
-     path.setAttribute('stroke-linecap','round');svg.appendChild(path);
+     path.setAttribute('stroke-linejoin','round');path.setAttribute('stroke-linecap','round');svg.appendChild(path);
     };
     for(const p of reportingPositions){
      const children=roleElements.get(p.id)||[];
