@@ -1588,10 +1588,40 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      }
      const box=canvas.getBoundingClientRect();
      const pos=node=>{const r=node.getBoundingClientRect();return {x:r.left-box.left+canvas.scrollLeft+r.width/2,top:r.top-box.top+canvas.scrollTop,bottom:r.bottom-box.top+canvas.scrollTop};};
+     const obstacles=[...layer.querySelectorAll('.ec-org-map-card')].map(n=>({node:n,x:parseFloat(n.style.left),y:parseFloat(n.style.top),w:n.offsetWidth,h:n.offsetHeight}));
      const makeLine=(a,b)=>{
-      const start=pos(a),end=pos(b),middle=(start.bottom+end.top)/2;
-      const d=end.top>=start.bottom+24?'M'+start.x+' '+start.bottom+' V'+middle+' H'+end.x+' V'+end.top:'M'+start.x+' '+start.bottom+' V'+(start.bottom+18)+' H'+(Math.max(start.x,end.x)+35)+' V'+(end.top-18)+' H'+end.x+' V'+end.top;
-      const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',d);path.setAttribute('fill','none');path.setAttribute('stroke','#79a98f');path.setAttribute('stroke-width','2');svg.appendChild(path);
+      const from=obstacles.find(o=>o.node===a),to=obstacles.find(o=>o.node===b);
+      if(!from||!to)return;
+      const step=10,pad=8;
+      const sx=Math.round((from.x+from.w/2)/step),sy=Math.round((from.y+from.h+20)/step);
+      const tx=Math.round((to.x+to.w/2)/step),ty=Math.round((to.y-20)/step);
+      const blocked=(x,y)=>obstacles.some(o=>o.node!==a&&o.node!==b&&x*step>=o.x-pad&&x*step<=o.x+o.w+pad&&y*step>=o.y-pad&&y*step<=o.y+o.h+pad);
+      const key=(x,y,d)=>x+','+y+','+d;
+      const queue=[{x:sx,y:sy,d:0,c:0,score:Math.abs(sx-tx)+Math.abs(sy-ty),prev:null}];
+      const best=new Map([[key(sx,sy,0),0]]);
+      let end=null,iterations=0;
+      while(queue.length&&iterations++<25000){
+       queue.sort((u,v)=>v.score-u.score);
+       const cur=queue.pop();
+       if(cur.c>best.get(key(cur.x,cur.y,cur.d)))continue;
+       if(cur.x===tx&&cur.y===ty){end=cur;break;}
+       for(const [dx,dy,dir] of [[1,0,1],[-1,0,1],[0,1,2],[0,-1,2]]){
+        const x=cur.x+dx,y=cur.y+dy;
+        if(x<0||y<0||x>160||y>120||blocked(x,y))continue;
+        const cost=cur.c+1+(cur.d&&cur.d!==dir?4:0);
+        const k=key(x,y,dir);if(cost>=(best.get(k)??Infinity))continue;
+        best.set(k,cost);
+        queue.push({x,y,d:dir,c:cost,score:cost+Math.abs(x-tx)+Math.abs(y-ty),prev:cur});
+       }
+      }
+      if(!end)return;
+      const points=[];for(let p=end;p;p=p.prev)points.push([p.x*step,p.y*step]);points.reverse();
+      const segments=[[from.x+from.w/2,from.y+from.h],...points,[to.x+to.w/2,to.y]];
+      const clean=segments.filter((p,i)=>i===0||p[0]!==segments[i-1][0]||p[1]!==segments[i-1][1]);
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      path.setAttribute('d',clean.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' '));
+      path.setAttribute('fill','none');path.setAttribute('stroke','#79a98f');path.setAttribute('stroke-width','2');path.setAttribute('stroke-linejoin','round');
+      svg.appendChild(path);
      };
      for(const p of positions.data||[]){
       if(!p.reports_to_position_id)continue;
@@ -1603,6 +1633,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     };
     const persist=()=>{const state={};for(const node of layer.querySelectorAll('.ec-org-map-card'))state[node.dataset.mapId||'staff:'+node.dataset.staffId]={x:parseFloat(node.style.left),y:parseFloat(node.style.top)};localStorage.setItem(keyName,JSON.stringify(state));};
     let drag=null,connectFrom=null,editMode=false;
+    const modeKey=keyName+':editing';
     const ensureRole=async node=>{
      if(node.dataset.mapId)return roleById.get(node.dataset.mapId);
      const m=allMembers.find(x=>String(x.id)===String(node.dataset.staffId));
@@ -1621,7 +1652,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      const r=await db.from('ec_org_positions').update({reports_to_position_id:parent.id,reports_to_department_id:null}).eq('id',child.id).eq('org_type',type).eq('org_id',id);
      if(r.error)alert(r.error.message);else await renderOrganisationChart(type,id);
     };
-    const setMode=enabled=>{editMode=enabled;map.classList.toggle('is-editing',enabled);map.querySelector('[data-map-mode]').textContent=enabled?'Finish editing':'Edit mode';map.querySelector('.ec-org-map-toolbar span').textContent=enabled?'Drag roles to grid cells, or select a role to edit reporting.':'Select a role to view its details.';};
+    const setMode=enabled=>{editMode=enabled;sessionStorage.setItem(modeKey,enabled?'1':'0');map.classList.toggle('is-editing',enabled);map.querySelector('[data-map-mode]').textContent=enabled?'Finish editing':'Edit mode';map.querySelector('.ec-org-map-toolbar span').textContent=enabled?'Drag roles to grid cells, or select a role to edit reporting.':'Select a role to view its details.';};
     layer.addEventListener('pointerdown',e=>{
      const node=e.target.closest('.ec-org-map-card');if(!editMode||!node||e.button!==0)return;
      const r=canvas.getBoundingClientRect();drag={node,startX:e.clientX,startY:e.clientY,x:parseFloat(node.style.left),y:parseFloat(node.style.top),moved:false};
@@ -1635,7 +1666,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      drag.node.style.left=Math.max(0,Math.round((drag.x+dx)/20)*20)+'px';
      drag.node.style.top=Math.max(0,Math.round((drag.y+dy)/20)*20)+'px';redraw();
     });
-    layer.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;if(moved){persist();drag.node.dataset.justDragged='true';setTimeout(()=>delete drag?.node?.dataset.justDragged,0);}drag=null;});
+    layer.addEventListener('pointerup',e=>{if(!drag)return;const moved=drag.moved;if(moved){persist();drag.node.dataset.justDragged='true';const movedNode=drag.node;setTimeout(()=>delete movedNode.dataset.justDragged,0);}drag=null;});
     const openMenu=(node)=>{
      const p=roleById.get(node.dataset.mapId);if(!p)return;
      const members=occupiedStaff(p);
@@ -1685,7 +1716,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     // staff actions and data compatibility, but is not rendered.
     chartView.hidden=true;
     map.hidden=false;
-    setMode(false);
+    setMode(sessionStorage.getItem(modeKey)==='1');
     requestAnimationFrame(redraw);
 
    }
