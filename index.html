@@ -1606,12 +1606,25 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       const step=20,pad=12;
       const maxX=Math.max(100,Math.ceil(layer.scrollWidth/step)+8),maxY=Math.max(80,Math.ceil(layer.scrollHeight/step)+8);
       const cx=o=>o.x+o.w/2,cy=o=>o.y+o.h/2;
-      const horizontal=Math.abs(cx(from)-cx(to))>Math.abs(cy(from)-cy(to));
-      const side=horizontal?(cx(from)<cx(to)?1:-1):(cy(from)<cy(to)?1:-1);
-      const start=horizontal?[from.x+(side>0?from.w:0),cy(from)]:[cx(from),from.y+(side>0?from.h:0)];
-      const finish=horizontal?[to.x+(side>0?0:to.w),cy(to)]:[cx(to),to.y+(side>0?0:to.h)];
-      const offset=(p,sign)=>horizontal?[p[0]+sign*step,p[1]]:[p[0],p[1]+sign*step];
-      const startOut=offset(start,side),endOut=offset(finish,-side);
+      const ports=o=>[
+       {point:[cx(o),o.y],out:[cx(o),o.y-step],name:'top'},
+       {point:[cx(o),o.y+o.h],out:[cx(o),o.y+o.h+step],name:'bottom'},
+       {point:[o.x,cy(o)],out:[o.x-step,cy(o)],name:'left'},
+       {point:[o.x+o.w,cy(o)],out:[o.x+o.w+step,cy(o)],name:'right'}
+      ];
+      const sourcePorts=ports(from),targetPorts=ports(to);
+      const validPort=p=>!obstacles.some(o=>o!==from&&o!==to&&p.out[0]>=o.x-pad&&p.out[0]<=o.x+o.w+pad&&p.out[1]>=o.y-pad&&p.out[1]<=o.y+o.h+pad);
+      const candidates=[];
+      for(const src of sourcePorts)for(const dst of targetPorts){
+       if(!validPort(src)||!validPort(dst))continue;
+       const distance=Math.abs(src.out[0]-dst.out[0])+Math.abs(src.out[1]-dst.out[1]);
+       const priority=(src.name==='bottom'?0:src.name==='top'?2:5)+(dst.name==='top'?0:dst.name==='bottom'?2:5);
+       candidates.push({src,dst,score:distance+priority*step});
+      }
+      candidates.sort((u,v)=>u.score-v.score);
+      const chosen=candidates[0];
+      if(!chosen)return;
+      const start=chosen.src.point,finish=chosen.dst.point,startOut=chosen.src.out,endOut=chosen.dst.out;
       const snap=p=>[Math.round(p[0]/step),Math.round(p[1]/step)];
       const [sx,sy]=snap(startOut),[tx,ty]=snap(endOut);
       const blocked=(x,y)=>obstacles.some(o=>o.node!==a&&o.node!==b&&x*step>=o.x-pad&&x*step<=o.x+o.w+pad&&y*step>=o.y-pad&&y*step<=o.y+o.h+pad);
