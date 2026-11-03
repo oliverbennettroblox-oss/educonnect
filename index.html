@@ -1623,7 +1623,17 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       }
       candidates.sort((u,v)=>u.score-v.score);
       const chosen=candidates[0];
-      if(!chosen)return;
+      const fallback=(reason)=>{
+       const src=sourcePorts[1].point,dst=targetPorts[0].point;
+       const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+       const mid=(src[1]+dst[1])/2;
+       path.setAttribute('d','M'+src[0]+' '+src[1]+' V'+mid+' H'+dst[0]+' V'+dst[1]);
+       path.setAttribute('fill','none');path.setAttribute('stroke','#d97706');path.setAttribute('stroke-width','2.5');path.setAttribute('stroke-dasharray','6 4');
+       path.setAttribute('aria-label',reason);path.dataset.routeWarning=reason;
+       const title=document.createElementNS('http://www.w3.org/2000/svg','title');title.textContent=reason;path.appendChild(title);
+       svg.appendChild(path);
+      };
+      if(!chosen){fallback('No clear connection point. Move one of these cards to open a route.');return;}
       const start=chosen.src.point,finish=chosen.dst.point,startOut=chosen.src.out,endOut=chosen.dst.out;
       const snap=p=>[Math.round(p[0]/step),Math.round(p[1]/step)];
       const [sx,sy]=snap(startOut),[tx,ty]=snap(endOut);
@@ -1643,7 +1653,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
         best.set(k,cost);queue.push({x,y,d:dir,c:cost,score:cost+Math.abs(x-tx)+Math.abs(y-ty),prev:cur});
        }
       }
-      if(!end)return;
+      if(!end){fallback('No clear route between these cards. Move a card to make space for the connection.');return;}
       const points=[];for(let p=end;p;p=p.prev)points.push([p.x*step,p.y*step]);points.reverse();
       const all=[start,startOut,...points,endOut,finish];
       const unique=all.filter((p,i)=>!i||p[0]!==all[i-1][0]||p[1]!==all[i-1][1]);
