@@ -532,6 +532,33 @@ body:has([data-school-hub-panel="timetable"]) [data-school-hub-panel="timetable"
 #ecOrgStaffChart .ec-department-dialog .ec-map-assignments{border-top:1px solid #dce9df;margin-top:20px;padding-top:15px}
 #ecOrgStaffChart .ec-department-dialog .ec-map-assignments label{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:9px 0}
 #ecOrgStaffChart .ec-department-dialog .ec-map-assignments select{max-width:260px}
+</style><style>
+/* Map-only management workspace */
+#ecStaffConnections.ec-map-focused>.ec-chart-toolbar,
+#ecStaffConnections.ec-map-focused>.ec-org-chart-actions,
+#ecStaffConnections.ec-map-focused>.ec-org-staff-selector,
+#ecStaffConnections.ec-map-focused>[data-org-staff-editor-panel]{display:none!important}
+#ecOrgStaffInvitations:has(#ecStaffConnections.ec-map-focused)>.ec-staff-invite-nudge,
+#ecOrgStaffInvitations:has(#ecStaffConnections.ec-map-focused)>[data-tt-open],
+#ecOrgStaffInvitations:has(#ecStaffConnections.ec-map-focused)>#ecStaffDirectory>p,
+#ecOrgStaffInvitations:has(#ecStaffConnections.ec-map-focused)>.ec-member-section,
+#ecOrgStaffInvitations:has(#ecStaffConnections.ec-map-focused)>.kicker,
+#ecOrgStaffInvitations:has(#ecStaffConnections.ec-map-focused)>h2,
+#ecOrgStaffInvitations:has(#ecStaffConnections.ec-map-focused)>nav{display:none!important}
+#ecStaffConnections.ec-map-focused .ec-org-map-toolbar [data-map-staff],
+#ecStaffConnections.ec-map-focused .ec-org-map-toolbar [data-map-invite]{display:inline-flex;align-items:center;justify-content:center}
+.ec-map-overlay{position:fixed;inset:0;background:rgba(10,30,22,.48);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+.ec-map-modal{width:min(570px,100%);max-height:min(85vh,850px);overflow:hidden;display:flex;flex-direction:column;background:white;border-radius:17px;box-shadow:0 24px 90px #0a211b55;color:#173e31}
+.ec-map-modal>header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid #e1eae5}
+.ec-map-modal>header h3{margin:0;font-size:19px}
+.ec-map-close{border:0;background:#edf4ef;border-radius:9px;font-size:25px;line-height:1;padding:5px 12px;cursor:pointer}
+.ec-map-modal-body{padding:18px 22px 24px;overflow:auto}
+.ec-map-modal-body .ec-org-staff-editor,.ec-map-modal-body .ec-member-section{display:block!important;border:0!important;padding:0!important;margin:0!important}
+.ec-map-modal-body label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}
+.ec-map-modal-body input,.ec-map-modal-body select{width:100%;max-width:100%;box-sizing:border-box}
+.ec-map-modal-body .ec-map-role-choice select{margin-top:6px}
+#ecOrgStaffChart .ec-position-dialog:not([hidden]){width:min(560px,calc(100vw - 32px));max-height:80vh;overflow:auto;border-radius:16px;box-shadow:0 20px 65px #0d31253d}
+#ecOrgStaffChart .ec-department-dialog:not([hidden]){width:min(650px,calc(100vw - 32px));max-height:80vh;overflow:auto}
 </style></head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Find MATs</button><button data-page="org-jobs" onclick="go('org-jobs')">Find a job</button><button data-page="community" onclick="go('community')">Find People</button><button data-page="resources" onclick="go('resources')">Resources Library</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('learning')">EduCareer</button><button onclick="go('providers')">Education providers</button><button onclick="go('standards')">Standards & inspections</button><button onclick="go('suggestions')">Suggestions</button><button onclick="go('book-demo')">Book a demo</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('resources')">Resources Library</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
 const schools=[];
 const documents=[{id:'primary',category:'Curriculum',title:'Primary curriculum framework',desc:'Learning aims, subject expectations and sample timetabling for primary schools.',sections:[['Purpose','A flexible framework for primary schools to plan purposeful lessons and age-appropriate learning experiences.'],['Core learning areas','English and communication, mathematics, science, digital literacy, humanities and creative learning.'],['Implementation','Publish a curriculum overview, plan progressive learning objectives and review pupil experience each term.'],['Evidence for review','Sample lesson plans, timetables, resources and examples of pupil work created within the Roblox environment.']]},{id:'secondary',category:'Curriculum',title:'Secondary curriculum framework',desc:'Subject progression, assessment principles and enrichment for secondary schools.',sections:[['Purpose','A coherent secondary programme balancing knowledge, skills, creative work and student choice.'],['Core provision','English, mathematics, science, humanities, computing, creative subjects and personal development.'],['Assessment','Use transparent criteria, proportionate feedback and opportunities for students to demonstrate progress.'],['Quality checks','Review subject coverage, teaching consistency and accessibility of learning materials.']]},{id:'post16',category:'Curriculum',title:'Post-16 and vocational framework',desc:'Programme planning for sixth forms, colleges and specialist providers.',sections:[['Programme design','Set out the purpose, entry expectations, timetable and outcomes of each course.'],['Learning pathways','Offer academic, creative, technical or vocational pathways appropriate to your Roblox setting.'],['Review','Gather learner feedback and examples of project work to evaluate programme quality.']]},{id:'safeguarding',category:'Policy',title:'Safeguarding and online conduct',desc:'Minimum expectations for safe communication, reporting and moderation.',sections:[['Scope','Participating schools must follow Roblox platform rules and applicable safeguarding obligations.'],['Conduct','No requests for private personal details, off-platform contact or inappropriate conversations with young users.'],['Reporting','Publish clear reporting routes, appoint responsible moderators and escalate serious concerns to appropriate real-world services.'],['Review','Review moderation logs and the policy regularly.']]},{id:'conduct',category:'Policy',title:'Staff code of conduct',desc:'Professional expectations for school leaders, teachers and volunteers.',sections:[['Professional behaviour','Treat all community members respectfully, avoid favouritism and use approved communication channels.'],['Accountability','Define staff responsibilities, moderation permissions and an accessible complaints process.'],['Conflicts of interest','Disclose relevant commercial or personal interests when making decisions.']]},{id:'admissions',category:'Policy',title:'Admissions and inclusion',desc:'Fair access, transparent entry criteria and inclusive participation.',sections:[['Admissions','Publish clear entry requirements and avoid arbitrary or discriminatory selection.'],['Accessibility','Offer accessible ways to participate and reasonable alternatives where possible.'],['Appeals','Provide a straightforward way to question an admissions decision.']]},{id:'inspection',category:'Guidance',title:'School review handbook',desc:'What inspectors consider, how evidence is reviewed and how outcomes are published.',sections:[['Before the review','Schools receive a scope statement and an evidence checklist.'],['Review areas','Educational experience, leadership, community safety, inclusion and technical reliability.'],['Outcome','A written report highlights strengths, development priorities and a follow-up plan.'],['Fairness','Schools can respond to factual inaccuracies before publication.']]},{id:'registration',category:'Guidance',title:'School registration guide',desc:'Eligibility, required information and the review process for new applicants.',sections:[['Who can apply','Roblox schools and education providers willing to follow educonnect participation standards.'],['What to prepare','School name, Roblox group, leadership contact, school phase and a brief description of provision.'],['What happens next','An educonnect reviewer checks the submission before a school can be listed as registered.']]}];
@@ -754,7 +781,9 @@ async function renderStaffOrgLinks(){const el=document.getElementById('ecStaffOr
 document.addEventListener('click',async e=>{const v=e.target.closest('[data-staff-view]');if(v){go('person:'+v.dataset.staffView);return;}const b=e.target.closest('[data-staff-unlink]');if(!b)return;if(!confirm('Remove this staff connection? The member will no longer be listed as connected to this organisation.'))return;b.disabled=true;const r=await db.from('ec_org_staff').delete().eq('id',b.dataset.staffUnlink);if(r.error){alert(r.error.message);b.disabled=false;}else{const row=(window.ecStaffLinks||[]).find(x=>x.id===b.dataset.staffUnlink);window.ecStaffLinks=(window.ecStaffLinks||[]).filter(x=>x.id!==b.dataset.staffUnlink);const [t,i]=(document.getElementById('ecStaffOrg')?.value||'').split(':');await loadStaffConnections(t,i);renderOrganisationChart(t,i);}});
 document.addEventListener('change',async e=>{const input=e.target.closest('[data-linked-rank]');if(!input)return;const rank=Number(input.value);if(!Number.isInteger(rank)||rank<1||rank>255){alert('Rank must be between 1 and 255.');return;}input.disabled=true;const r=await db.from('ec_org_staff').update({rank_code:rank}).eq('id',input.dataset.linkedRank);if(r.error)alert('Could not update rank: '+r.error.message);else{const row=(window.ecStaffLinks||[]).find(x=>x.id===input.dataset.linkedRank);if(row){row.rank_code=rank;renderOrganisationChart(row.org_type,row.org_id);}}input.disabled=false;});
 async function searchStaffPeople(){const el=document.getElementById('ecStaffPersonMatches'),q=document.getElementById('ecStaffPersonSearch')?.value.trim();if(!el)return;if(!q||q.length<2){el.textContent='';return;}const r=await db.from('ec_career_profiles').select('user_id,display_name,headline').eq('visibility','public').ilike('display_name','%'+q.replace(/[%_]/g,'')+'%').limit(12);if(document.getElementById('ecStaffPersonSearch')?.value.trim()!==q)return;el.innerHTML=(r.data||[]).map(p=>'<article class="result"><strong>'+safe(p.display_name)+'</strong><p>'+safe(p.headline)+'</p><button class="button light" data-staff-invite="'+safe(p.user_id)+'">Invite to confirm →</button></article>').join('')||'<p>No matching public profiles.</p>';}
-document.addEventListener('click',async e=>{const invite=e.target.closest('[data-staff-invite]'),reply=e.target.closest('[data-staff-reply]');if(!invite&&!reply||!user)return;const b=invite||reply;b.disabled=true;let result;if(invite){const org=document.getElementById('ecStaffOrg')?.value,role=document.getElementById('ecStaffRole')?.value.trim();const started=document.getElementById('ecStaffStarted')?.value;if(!org||!role||!started){alert('Choose an organisation, enter a position and set the employment start date.');b.disabled=false;return;}const [org_type,org_id]=org.split(':');result=await db.from('ec_org_staff').insert({org_type,org_id,user_id:invite.dataset.staffInvite,job_title:role,started_on:started,rank_code:Number(document.getElementById('ecStaffRank')?.value||1)});}else{result=await db.from('ec_org_staff').update({status:reply.dataset.staffDecision}).eq('id',reply.dataset.staffReply);}if(result.error)alert(result.error.message);else await loadStaffConnections();b.disabled=false;});
+document.addEventListener('click',async e=>{const invite=e.target.closest('[data-staff-invite]'),reply=e.target.closest('[data-staff-reply]');if(!invite&&!reply||!user)return;const b=invite||reply;b.disabled=true;let result;if(invite){const org=document.getElementById('ecStaffOrg')?.value,role=document.getElementById('ecStaffRole')?.value.trim();const started=document.getElementById('ecStaffStarted')?.value;if(!org||!role||!started){alert('Choose an organisation, enter a position and set the employment start date.');b.disabled=false;return;}const [org_type,org_id]=org.split(':');const selectedRole=document.querySelector('#ecMapRoleChoice select')?.selectedOptions[0];
+if(document.getElementById('ecStaffRole')?.closest('[data-map-role-selection="true"]')&&!selectedRole?.dataset.title){alert('Please choose an existing role first.');b.disabled=false;return;}
+result=await db.from('ec_org_staff').insert({org_type,org_id,user_id:invite.dataset.staffInvite,job_title:role,started_on:started,rank_code:Number(document.getElementById('ecStaffRank')?.value||1),...(selectedRole?.dataset.title?{department_id:selectedRole.dataset.department||null}:{})});}else{result=await db.from('ec_org_staff').update({status:reply.dataset.staffDecision}).eq('id',reply.dataset.staffReply);}if(result.error)alert(result.error.message);else await loadStaffConnections();b.disabled=false;});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-account-org]');if(!b)return;const [type,id]=b.dataset.accountOrg.split(':');switchAccountTab('organisations',false);current='account/org/'+type+'/'+id;history.pushState(null,'','#'+current);document.querySelectorAll('[data-account-org]').forEach(x=>x.classList.toggle('active',x===b));window.ecOpenOrganisation(type,id);});
 document.addEventListener('click',e=>{const vacancies=e.target.closest('[data-org-vacancies]');if(vacancies){const [type,id]=vacancies.dataset.orgVacancies.split(':');ecShowOrgSubtool('vacancies');loadOrgVacancies(type,id);}const applications=e.target.closest('[data-org-applications]');if(applications){const [type,id]=applications.dataset.orgApplications.split(':');ecShowOrgSubtool('applications');loadOrgApplications(type,id);}const home=e.target.closest('[data-org-home]');if(home)ecShowOrgSubtool('home');const overview=e.target.closest('[data-org-main]');if(overview)ecShowOrgSubtool('main');const b=e.target.closest('[data-org-review]');if(b){const [type,id]=b.dataset.orgReview.split(':');ecShowOrgSubtool('review');loadTaggedExperience(type,id);}const i=e.target.closest('[data-org-invitations]');if(i){const [type,id]=i.dataset.orgInvitations.split(':');ecShowOrgSubtool('staff');const panel=document.getElementById('ecOrgStaffInvitations');panel.innerHTML='<div class="kicker">YOUR PEOPLE</div><h2>Staff management</h2><nav class="ec-profile-tabs ec-org-tabs"><button type="button" class="active" data-staff-view="directory">Staff directory</button></nav><div class="ec-staff-invite-nudge"><div><span class="kicker">BUILD YOUR SCHOOL COMMUNITY</span><h3>Bring your team onto EduConnect</h3><p>Invite your colleagues to connect their professional profiles to your school. Build a trusted staff directory, showcase verified experience and make onboarding easier. Invitations are optional and staff decide whether to accept.</p></div><button type="button" class="button" data-staff-invite-prompt>Invite a colleague ↗</button></div><button class="button light" type="button" data-tt-open="'+safe(type)+':'+safe(id)+'">Open Staff Hub & timetable →</button><div id="ecStaffDirectory"><p class="small">Explore your team and visit linked professional profiles.</p><div id="ecStaffConnections">Loading…</div></div><div id="ecStaffOnboarding" hidden></div>';ecOnboardingOrg={type,id};loadStaffConnections(type,id);ecCareerOwnerPanel(type,id);}});
 
@@ -1555,8 +1584,9 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     const profileResult=profileUsers.length?await db.from('ec_career_profiles').select('user_id,display_name,photo_url').in('user_id',profileUsers):{data:[]};
     const profileNames=new Map((profileResult.data||[]).map(p=>[p.user_id,p.display_name]));
     const profilePhotos=new Map((profileResult.data||[]).map(p=>[p.user_id,p.photo_url]));
+    document.getElementById('ecStaffConnections')?.classList.add('ec-map-focused');
     const map=document.createElement('section');map.className='ec-org-map';map.dataset.orgType=type;map.dataset.orgId=id;
-    map.innerHTML='<div class="ec-org-map-toolbar"><strong>Organisation chart</strong><button type="button" class="ec-map-edit-toggle" data-map-mode>✎ Edit map</button><button type="button" data-map-add>＋ Add role</button><button type="button" data-map-department>＋ Add department</button><button type="button" data-map-manage-departments>⚙ Manage departments</button><span>View the reporting structure. Enable Edit mode to arrange cards on the grid.</span></div><div class="ec-org-map-canvas"><div class="ec-org-map-departments" aria-hidden="true"></div><svg class="ec-org-map-lines" aria-hidden="true"></svg><div class="ec-org-map-cards"></div></div><div class="ec-org-map-menu" hidden></div>';
+    map.innerHTML='<div class="ec-org-map-toolbar"><strong>Organisation chart</strong><button type="button" class="ec-map-edit-toggle" data-map-mode>✎ Edit map</button><button type="button" data-map-add>＋ Add role</button><button type="button" class="ec-map-invite-button" data-map-invite title="Invite someone to a role" aria-label="Invite a team member">♙ Invite</button><button type="button" data-map-staff title="Staff records and departures">♧ Staff</button><button type="button" data-map-department>＋ Add department</button><button type="button" data-map-manage-departments>⚙ Manage departments</button><span>View the reporting structure. Enable Edit mode to arrange cards on the grid.</span></div><div class="ec-org-map-canvas"><div class="ec-org-map-departments" aria-hidden="true"></div><svg class="ec-org-map-lines" aria-hidden="true"></svg><div class="ec-org-map-cards"></div></div><div class="ec-org-map-menu" hidden></div>';
     chartView.before(map);
     // All management controls are modal; the map is the sole visible chart workspace.
     for(const child of [...root.children])if(child!==map)child.classList.add('ec-map-background-panel');
@@ -1829,6 +1859,8 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      }
      if(e.target.closest('[data-map-add]')){const dialog=root.querySelector('.ec-position-manager');if(dialog){dialog.hidden=false;dialog.querySelector('details.ec-position-add')?.setAttribute('open','');}}
      if(e.target.closest('[data-map-department],[data-map-manage-departments]')){const dialog=root.querySelector('.ec-department-manager:not(.ec-position-manager)');if(dialog){dialog.hidden=false;dialog.querySelector('[data-department-create] input')?.focus();}}
+     if(e.target.closest('[data-map-invite]'))window.ecOpenMapStaffDialog?.('invite',type,id);
+     if(e.target.closest('[data-map-staff]'))window.ecOpenMapStaffDialog?.('career',type,id);
      if(e.target.closest('[data-map-mode]'))setMode(!editMode);
     });
     // The map is the only visible organisation chart. Editing is a mode,
@@ -1903,7 +1935,74 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   const original=loadShareableOrgChart;
   loadShareableOrgChart=async function(route){await original.apply(this,arguments);const [type,id]=route.split(':');await enhance(type,id,true);};
  }
- document.addEventListener('change',e=>{if(e.target.matches('[data-position-reporting]'))e.target.dataset.dirty='true';});
+ 
+ // Keep the organisation chart as the entire workspace. The legacy controls
+ // stay in the DOM for existing actions, but are opened only as focused dialogs.
+ window.ecOpenMapStaffDialog=async function(kind,type,id){
+  const root=document.getElementById('ecStaffConnections');
+  if(!root)return;
+  root.classList.add('ec-map-focused');
+  root.querySelectorAll('.ec-map-overlay').forEach(n=>n.remove());
+  const overlay=document.createElement('div');overlay.className='ec-map-overlay';
+  overlay.innerHTML='<section class="ec-map-modal" role="dialog" aria-modal="true"><header><h3></h3><button type="button" class="ec-map-close" aria-label="Close">×</button></header><div class="ec-map-modal-body"></div></section>';
+  const body=overlay.querySelector('.ec-map-modal-body');
+  const title=overlay.querySelector('h3');
+  let source;
+  if(kind==='invite'){
+   source=root.querySelector('[data-org-staff-editor-panel="invite"]');
+   title.textContent='Invite to a role';
+   if(source){
+    const old=source.querySelector('#ecMapRoleChoice');old?.remove();
+    const roleInput=source.querySelector('#ecStaffRole');
+    const choice=document.createElement('label');choice.id='ecMapRoleChoice';choice.className='ec-map-role-choice';
+    choice.textContent='Existing role';
+    const select=document.createElement('select');select.required=true;
+    select.innerHTML='<option value="">Choose an existing role…</option>';
+    const result=await db.from('ec_org_positions').select('id,title,rank_code,department_id').eq('org_type',type).eq('org_id',id);
+    for(const position of result.data||[]){
+     const opt=document.createElement('option');opt.value=position.id;opt.textContent=position.title+' · Rank '+position.rank_code;
+     opt.dataset.title=position.title;opt.dataset.rank=position.rank_code;opt.dataset.department=position.department_id||'';
+     select.appendChild(opt);
+    }
+    select.addEventListener('change',()=>{
+     const opt=select.selectedOptions[0];if(!opt?.dataset.title)return;
+     roleInput.value=opt.dataset.title;
+     const rank=source.querySelector('#ecStaffRank');if(rank)rank.value=opt.dataset.rank;
+    });
+    choice.appendChild(select);roleInput.before(choice);
+    roleInput.readOnly=true;
+    source.dataset.mapRoleSelection='true';
+   }
+  }else if(kind==='career'){
+   source=document.getElementById('ecCareerOwnerArea')?.closest('.ec-member-section');
+   title.textContent='Staff records & departures';
+  }else if(kind==='manual'){
+   source=root.querySelector('[data-org-staff-editor-panel="manual"]');
+   title.textContent='Add an internal staff record';
+  }
+  if(!source){ecNotice('This management panel is not available yet.','error');return;}
+  const parent=source.parentNode,next=source.nextSibling;
+  source.hidden=false;source.removeAttribute('aria-hidden');
+  body.appendChild(source);root.appendChild(overlay);
+  const close=()=>{
+   if(next?.parentNode===parent)parent.insertBefore(source,next);else parent.appendChild(source);
+   source.hidden=true;overlay.remove();
+  };
+  overlay.querySelector('.ec-map-close').addEventListener('click',close);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)close();});
+  overlay.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
+  overlay.querySelector('button').focus();
+ };
+ document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-org-staff-editor]');
+  if(!b||!document.getElementById('ecStaffConnections')?.classList.contains('ec-map-focused'))return;
+  if(b.dataset.orgStaffEditor==='invite'||b.dataset.orgStaffEditor==='manual'){
+   e.stopImmediatePropagation();
+   const org=document.getElementById('ecStaffOrg')?.value.split(':')||[];
+   window.ecOpenMapStaffDialog(b.dataset.orgStaffEditor,...org);
+  }
+ },true);
+document.addEventListener('change',e=>{if(e.target.matches('[data-position-reporting]'))e.target.dataset.dirty='true';});
  document.addEventListener('submit',async e=>{
   const form=e.target.closest('[data-position-create]');if(!form)return;e.preventDefault();
   const panel=form.closest('.ec-position-manager'),type=panel.dataset.orgType,id=panel.dataset.orgId,d=Object.fromEntries(new FormData(form));
