@@ -512,6 +512,15 @@ body:has([data-school-hub-panel="timetable"]) [data-school-hub-panel="timetable"
 .ec-org-map-card small{font-size:12px;color:#60786c}
 .ec-org-map-menu{position:relative;background:#fff;border-top:1px solid #d8e7dd;padding:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .ec-org-map-menu[hidden],.ec-org-map[hidden]{display:none!important}
+</style><style>
+#ecOrgStaffChart .ec-org-map{margin:0;border:0;border-radius:0}
+#ecOrgStaffChart .ec-org-map-canvas{height:min(78vh,980px);min-height:620px}
+#ecOrgStaffChart .ec-org-map-toolbar{gap:8px;padding:10px 14px}
+#ecOrgStaffChart .ec-org-map-toolbar span{margin-left:auto}
+#ecOrgStaffChart .ec-org-map-menu:not([hidden]){position:fixed;z-index:10001;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,92vw);max-height:80vh;overflow:auto;border:1px solid #cbded3;border-radius:16px;box-shadow:0 20px 80px #123f3555;padding:22px}
+#ecOrgStaffChart .ec-org-map-menu:not([hidden])::before{content:'Role options';display:block;width:100%;font-weight:700;color:#23543e}
+#ecOrgStaffChart .ec-position-dialog[hidden]{display:none!important}
+#ecOrgStaffChart .ec-position-list[hidden]{display:none!important}
 </style><style>.ec-org-map:not(.is-editing) .ec-org-map-card{cursor:pointer;touch-action:auto}.ec-org-map:not(.is-editing) [data-map-add],.ec-org-map:not(.is-editing) [data-map-department]{display:none}.ec-org-map-canvas{background-size:20px 20px}</style><style>.ec-org-map-count{font-size:12px;color:#4f7560}.ec-org-map-member-list{display:none;flex-direction:column;gap:5px;width:100%;margin-top:8px}.ec-org-map-card.expanded .ec-org-map-member-list{display:flex}.ec-org-map-member{font-size:12px;padding:6px 8px;border-radius:6px;background:#edf5ef;color:#27553e}.ec-org-map-member.vacant{border:1px dashed #9eb9a6;background:#fff}.ec-org-map-menu .ec-org-map-member-list{display:flex}.ec-org-map-unplanned{border-color:#d2c49c}</style><style>.ec-org-map-role-head,.ec-org-map-member{display:flex;align-items:center;gap:10px}.ec-org-map-role-head>span:last-child{display:flex;flex-direction:column;text-align:left}.ec-org-map-avatar{width:40px;height:40px;object-fit:cover;border-radius:10px;flex:none}.ec-org-map-avatar-empty{display:grid;place-items:center;background:#edf5ef;color:#35745b}.ec-org-map-single{display:block;margin-top:8px}.ec-org-map-card.multi-seat.expanded .ec-org-map-member-list{display:flex}.ec-org-map-card{height:auto}</style><style>.ec-position-dialog:not([hidden]){position:fixed;z-index:10000;inset:5vh auto auto 50%;transform:translateX(-50%);width:min(760px,94vw);max-height:90vh;overflow:auto;background:#fff;border:1px solid #cbded3;box-shadow:0 18px 70px #123f3544;border-radius:16px;padding:22px}.ec-position-dialog[hidden]{display:none!important}</style><style>.ec-org-map-departments{position:absolute;inset:0;width:1600px;height:1200px;pointer-events:none}.ec-org-map-department-box{position:absolute;border:2px solid #a9cbb5;border-radius:18px;background:#e9f4ed55;box-sizing:border-box;pointer-events:none}.ec-org-map.is-editing .ec-org-map-department-box>strong{pointer-events:auto;cursor:grab;touch-action:none;user-select:none;background:#d7eadc;border-radius:10px}.ec-org-map.is-editing .ec-org-map-department-box>strong:active{cursor:grabbing}.ec-org-map-department-box>strong{display:block;padding:10px 16px;color:#285b45;font-size:13px;white-space:nowrap}.ec-org-map-departments{z-index:0}.ec-org-map-lines{z-index:3}.ec-org-map-cards{z-index:2;pointer-events:none}.ec-org-map-card{pointer-events:auto}</style></head><body><header class="site-header"><div class="shell header-row"><a href="#home" class="brand" onclick="go('home');return false"><img class="symbol" src="educonnect-icon.svg" alt="" aria-hidden="true"><span>educonnect</span></a><button class="mobile-toggle" id="mobileToggle" aria-expanded="false" onclick="toggleNav()">☰ Menu</button><nav class="nav" id="nav" aria-label="Main navigation"><button data-page="home" onclick="go('home')">Home</button><button data-page="schools" onclick="go('schools')">Find schools</button><button data-page="trusts" onclick="go('trusts')">Find MATs</button><button data-page="org-jobs" onclick="go('org-jobs')">Find a job</button><button data-page="community" onclick="go('community')">Find People</button><button data-page="resources" onclick="go('resources')">Resources Library</button><button class="join" data-page="join" onclick="go('join')">Join educonnect ↗</button></nav></div></header><div class="utility"><div class="shell"><button onclick="go('learning')">EduCareer</button><button onclick="go('providers')">Education providers</button><button onclick="go('standards')">Standards & inspections</button><button onclick="go('suggestions')">Suggestions</button><button onclick="go('book-demo')">Book a demo</button></div></div><main id="app"></main><footer class="footer"><div class="shell"><div class="footergrid"><div><div class="brand" style="color:white"><img class="symbol" src="educonnect-icon.svg" alt=""><span>educonnect</span></div><p>A connected community for better Roblox schools. Practical guidance, trusted standards and meaningful support.</p></div><div><h4>Schools</h4><button onclick="go('schools')">School directory</button><button onclick="go('trusts')">Academy trusts</button><button onclick="go('join')">Register your school</button></div><div><h4>Support</h4><button onclick="go('resources')">Resources Library</button><button onclick="go('funding')">Bursaries</button></div><div><h4>Organisation</h4><button onclick="go('standards')">Inspections</button><button onclick="go('providers')">Provider network</button><button onclick="go('about')">About us</button><button onclick="go('team')">Meet the team</button><button onclick="go('careers')">Careers</button></div></div><div class="footline">© 2026 educonnect · Independent Roblox education community · Not affiliated with Roblox Corporation or the UK government. Only approved organisations will appear in the live directory.</div></div></footer><script>
 const schools=[];
 const documents=[{id:'primary',category:'Curriculum',title:'Primary curriculum framework',desc:'Learning aims, subject expectations and sample timetabling for primary schools.',sections:[['Purpose','A flexible framework for primary schools to plan purposeful lessons and age-appropriate learning experiences.'],['Core learning areas','English and communication, mathematics, science, digital literacy, humanities and creative learning.'],['Implementation','Publish a curriculum overview, plan progressive learning objectives and review pupil experience each term.'],['Evidence for review','Sample lesson plans, timetables, resources and examples of pupil work created within the Roblox environment.']]},{id:'secondary',category:'Curriculum',title:'Secondary curriculum framework',desc:'Subject progression, assessment principles and enrichment for secondary schools.',sections:[['Purpose','A coherent secondary programme balancing knowledge, skills, creative work and student choice.'],['Core provision','English, mathematics, science, humanities, computing, creative subjects and personal development.'],['Assessment','Use transparent criteria, proportionate feedback and opportunities for students to demonstrate progress.'],['Quality checks','Review subject coverage, teaching consistency and accessibility of learning materials.']]},{id:'post16',category:'Curriculum',title:'Post-16 and vocational framework',desc:'Programme planning for sixth forms, colleges and specialist providers.',sections:[['Programme design','Set out the purpose, entry expectations, timetable and outcomes of each course.'],['Learning pathways','Offer academic, creative, technical or vocational pathways appropriate to your Roblox setting.'],['Review','Gather learner feedback and examples of project work to evaluate programme quality.']]},{id:'safeguarding',category:'Policy',title:'Safeguarding and online conduct',desc:'Minimum expectations for safe communication, reporting and moderation.',sections:[['Scope','Participating schools must follow Roblox platform rules and applicable safeguarding obligations.'],['Conduct','No requests for private personal details, off-platform contact or inappropriate conversations with young users.'],['Reporting','Publish clear reporting routes, appoint responsible moderators and escalate serious concerns to appropriate real-world services.'],['Review','Review moderation logs and the policy regularly.']]},{id:'conduct',category:'Policy',title:'Staff code of conduct',desc:'Professional expectations for school leaders, teachers and volunteers.',sections:[['Professional behaviour','Treat all community members respectfully, avoid favouritism and use approved communication channels.'],['Accountability','Define staff responsibilities, moderation permissions and an accessible complaints process.'],['Conflicts of interest','Disclose relevant commercial or personal interests when making decisions.']]},{id:'admissions',category:'Policy',title:'Admissions and inclusion',desc:'Fair access, transparent entry criteria and inclusive participation.',sections:[['Admissions','Publish clear entry requirements and avoid arbitrary or discriminatory selection.'],['Accessibility','Offer accessible ways to participate and reasonable alternatives where possible.'],['Appeals','Provide a straightforward way to question an admissions decision.']]},{id:'inspection',category:'Guidance',title:'School review handbook',desc:'What inspectors consider, how evidence is reviewed and how outcomes are published.',sections:[['Before the review','Schools receive a scope statement and an evidence checklist.'],['Review areas','Educational experience, leadership, community safety, inclusion and technical reliability.'],['Outcome','A written report highlights strengths, development priorities and a follow-up plan.'],['Fairness','Schools can respond to factual inaccuracies before publication.']]},{id:'registration',category:'Guidance',title:'School registration guide',desc:'Eligibility, required information and the review process for new applicants.',sections:[['Who can apply','Roblox schools and education providers willing to follow educonnect participation standards.'],['What to prepare','School name, Roblox group, leadership contact, school phase and a brief description of provision.'],['What happens next','An educonnect reviewer checks the submission before a school can be listed as registered.']]}];
@@ -1592,8 +1601,9 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      for(const dept of depts.data||[]){
       const nodes=[...layer.querySelectorAll('.ec-org-map-card')].filter(n=>n.dataset.departmentId===String(dept.id));
       const deptIndex=(depts.data||[]).findIndex(d=>String(d.id)===String(dept.id));
-      const minX=nodes.length?Math.min(...nodes.map(n=>parseFloat(n.style.left)))-60:60+(deptIndex%3)*400;
-      const minY=nodes.length?Math.min(...nodes.map(n=>parseFloat(n.style.top)))-80:60+Math.floor(deptIndex/3)*260;
+      const offset=saved['department:'+dept.id];
+      const minX=nodes.length?Math.min(...nodes.map(n=>parseFloat(n.style.left)))-60:(Number.isFinite(Number(offset?.x))?Number(offset.x):60+(deptIndex%3)*400);
+      const minY=nodes.length?Math.min(...nodes.map(n=>parseFloat(n.style.top)))-80:(Number.isFinite(Number(offset?.y))?Number(offset.y):60+Math.floor(deptIndex/3)*260);
       const maxX=nodes.length?Math.max(...nodes.map(n=>parseFloat(n.style.left)+n.offsetWidth))+60:minX+320;
       const maxY=nodes.length?Math.max(...nodes.map(n=>parseFloat(n.style.top)+n.offsetHeight))+60:minY+180;
       const group=document.createElement('div');group.className='ec-org-map-department-box';
@@ -1697,32 +1707,40 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       if(a&&b)makeLine(a,b);
      }
     };
-    const persist=()=>{const state={};for(const node of layer.querySelectorAll('.ec-org-map-card'))state[node.dataset.mapId||'staff:'+node.dataset.staffId]={x:parseFloat(node.style.left),y:parseFloat(node.style.top)};localStorage.setItem(keyName,JSON.stringify(state));};
+    const persist=()=>{const state={...saved};for(const node of layer.querySelectorAll('.ec-org-map-card'))state[node.dataset.mapId||'staff:'+node.dataset.staffId]={x:parseFloat(node.style.left),y:parseFloat(node.style.top)};for(const dept of departmentLayer.querySelectorAll('.ec-org-map-department-box'))if(!layer.querySelector('[data-department-id="'+CSS.escape(dept.dataset.departmentId)+'"]'))state['department:'+dept.dataset.departmentId]={x:parseFloat(dept.style.left),y:parseFloat(dept.style.top)};Object.assign(saved,state);localStorage.setItem(keyName,JSON.stringify(state));};
     let drag=null,connectFrom=null,editMode=false;
     const modeKey=keyName+':editing';
-    // Dragging a department moves every member card by the same grid-aligned offset.
+    departmentLayer.addEventListener('click',e=>{if(!editMode||departmentDrag)return;const title=e.target.closest('.ec-org-map-department-box>strong');if(!title)return;const dialog=root.querySelector('.ec-department-manager:not(.ec-position-manager)');if(dialog)dialog.hidden=false;});
+    // Pointer events are handled on the document because redraw replaces department headers.
     let departmentDrag=null;
     departmentLayer.addEventListener('pointerdown',e=>{
      const header=e.target.closest('.ec-org-map-department-box>strong');
      if(!editMode||!header||e.button!==0)return;
-     const id=header.parentElement.dataset.departmentId;
+     const group=header.parentElement,id=group.dataset.departmentId;
      const nodes=[...layer.querySelectorAll('.ec-org-map-card')].filter(n=>n.dataset.departmentId===id);
-     if(!nodes.length)return;
-     departmentDrag={header,startX:e.clientX,startY:e.clientY,nodes:nodes.map(node=>({node,x:parseFloat(node.style.left),y:parseFloat(node.style.top)}))};
-     header.setPointerCapture(e.pointerId);e.preventDefault();
+     departmentDrag={id,startX:e.clientX,startY:e.clientY,originX:parseFloat(group.style.left),originY:parseFloat(group.style.top),nodes:nodes.map(node=>({node,x:parseFloat(node.style.left),y:parseFloat(node.style.top)})),moved:false};
+     e.preventDefault();
     });
-    departmentLayer.addEventListener('pointermove',e=>{
-     if(!departmentDrag)return;
-     const dx=Math.round((e.clientX-departmentDrag.startX)/20)*20;
-     const dy=Math.round((e.clientY-departmentDrag.startY)/20)*20;
-     const minX=Math.min(...departmentDrag.nodes.map(n=>n.x)),minY=Math.min(...departmentDrag.nodes.map(n=>n.y));
+    const moveDepartment=e=>{
+     if(!departmentDrag||!map.isConnected)return;
+     const d=departmentDrag,dx=Math.round((e.clientX-d.startX)/20)*20,dy=Math.round((e.clientY-d.startY)/20)*20;
+     if(!dx&&!dy)return;
+     d.moved=true;
+     const minX=d.nodes.length?Math.min(...d.nodes.map(n=>n.x)):d.originX;
+     const minY=d.nodes.length?Math.min(...d.nodes.map(n=>n.y)):d.originY;
      const shiftX=Math.max(60-minX,dx),shiftY=Math.max(100-minY,dy);
-     for(const item of departmentDrag.nodes){item.node.style.left=(item.x+shiftX)+'px';item.node.style.top=(item.y+shiftY)+'px';}
+     for(const item of d.nodes){item.node.style.left=(item.x+shiftX)+'px';item.node.style.top=(item.y+shiftY)+'px';}
+     if(!d.nodes.length)saved['department:'+d.id]={x:d.originX+shiftX,y:d.originY+shiftY};
      redraw();
-    });
-    const finishDepartmentDrag=()=>{if(!departmentDrag)return;departmentDrag=null;persist();redraw();};
-    departmentLayer.addEventListener('pointerup',finishDepartmentDrag);
-    departmentLayer.addEventListener('pointercancel',finishDepartmentDrag);
+    };
+    const finishDepartmentDrag=()=>{
+     if(!departmentDrag)return;
+     const d=departmentDrag;departmentDrag=null;
+     if(d.moved){persist();redraw();}
+    };
+    document.addEventListener('pointermove',moveDepartment);
+    document.addEventListener('pointerup',finishDepartmentDrag);
+    document.addEventListener('pointercancel',finishDepartmentDrag);
     const ensureRole=async node=>{
      if(node.dataset.mapId)return roleById.get(node.dataset.mapId);
      const m=allMembers.find(x=>String(x.id)===String(node.dataset.staffId));
@@ -1786,7 +1804,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       if(action==='role-setup'){
        const m=allMembers.find(x=>String(x.id)===String(memberId));
        const form=root.querySelector('.ec-position-manager [data-position-create]');
-       if(m&&form){form.reset();delete form.dataset.positionEdit;form.elements.title.value=m.job_title||'';form.elements.department.value=m.department_id||'';form.elements.rank.value=m.rank_code||'';form.closest('details')?.setAttribute('open','');form.scrollIntoView({block:'center'});ecNotice('Create the role structure here. This does not change the linked staff profile.','info');}
+       if(m&&form){form.closest('.ec-position-manager').hidden=false;form.reset();delete form.dataset.positionEdit;form.elements.title.value=m.job_title||'';form.elements.department.value=m.department_id||'';form.elements.rank.value=m.rank_code||'';form.closest('details')?.setAttribute('open','');form.scrollIntoView({block:'center'});ecNotice('Create the role structure here. This does not change the linked staff profile.','info');}
        return;
       }
       if(action==='expand'){const node=layer.querySelector('[data-map-id="'+CSS.escape(roleId)+'"]');if(node){node.classList.toggle('expanded');redraw();}return;}
@@ -1794,10 +1812,10 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       if(action==='staff'){const first=occupiedStaff(roleById.get(roleId))[0];if(first){const button=root.querySelector('[data-staff-view="'+CSS.escape(String(first.user_id||''))+'"]');if(button)button.click();else ecNotice('Staff details are available in Find People.','info');}return;}
       const panel=root.querySelector('.ec-position-manager');
       const target=panel?.querySelector('[data-position-'+(action==='remove'?'delete':action==='recruit'?'recruit':'edit')+'="'+CSS.escape(roleId)+'"]');
-      if(target){target.click();if(action==='edit')panel.scrollIntoView({block:'start'});}return;
+      if(target){panel.hidden=false;target.click();}return;
      }
-     if(e.target.closest('[data-map-add]')){root.querySelector('.ec-position-manager details.ec-position-add')?.setAttribute('open','');root.querySelector('.ec-position-manager')?.scrollIntoView({block:'start'});}
-     if(e.target.closest('[data-map-department]')){root.querySelector('[data-department-create]')?.scrollIntoView({block:'start'});}
+     if(e.target.closest('[data-map-add]')){const dialog=root.querySelector('.ec-position-manager');if(dialog){dialog.hidden=false;dialog.querySelector('details.ec-position-add')?.setAttribute('open','');}}
+     if(e.target.closest('[data-map-department]')){const dialog=root.querySelector('.ec-department-manager:not(.ec-position-manager)');if(dialog){dialog.hidden=false;dialog.querySelector('[data-department-create] input')?.focus();}}
      if(e.target.closest('[data-map-mode]'))setMode(!editMode);
     });
     // The map is the only visible organisation chart. Editing is a mode,
@@ -1833,10 +1851,11 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   panel.dataset.orgType=type;panel.dataset.orgId=id;
   const manager=root.querySelector('.ec-department-manager');if(manager)manager.after(panel);else root.appendChild(panel);
   panel.classList.add('ec-position-dialog');panel.hidden=true;
-  panel.querySelector('.ec-position-list')?.remove();
+  panel.querySelector('.ec-position-list')?.setAttribute('hidden','');
   const close=document.createElement('button');close.type='button';close.textContent='Close';close.className='button light';close.addEventListener('click',()=>panel.hidden=true);panel.prepend(close);
   root.querySelectorAll('[data-map-add]').forEach(b=>b.addEventListener('click',()=>{panel.hidden=false;panel.querySelector('details')?.setAttribute('open','');}));
-  root.querySelectorAll('[data-map-department]').forEach(b=>b.addEventListener('click',()=>{panel.hidden=false;}));
+  const departmentManager=root.querySelector('.ec-department-manager:not(.ec-position-manager)');
+  if(departmentManager){departmentManager.classList.add('ec-position-dialog','ec-department-dialog');departmentManager.hidden=true;const closeDept=document.createElement('button');closeDept.type='button';closeDept.className='button light';closeDept.textContent='Close';closeDept.addEventListener('click',()=>departmentManager.hidden=true);departmentManager.prepend(closeDept);}
  }
  if(typeof renderOrganisationChart==='function'){
   const original=renderOrganisationChart;
@@ -1896,7 +1915,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    form.elements.reporting.value=selected;
    form.dataset.originalReporting=selected;
    form.elements.reporting.dataset.dirty='false';
-   details.querySelector('[data-position-form-heading]').textContent='Edit planned position';form.querySelector('[type=submit]').textContent='Save changes';form.scrollIntoView({block:'center',behavior:'smooth'});return;
+   details.querySelector('[data-position-form-heading]').textContent='Edit planned position';form.querySelector('[type=submit]').textContent='Save changes';panel.hidden=false;form.scrollIntoView({block:'center',behavior:'smooth'});return;
   }
   if(del){if(!confirm('Remove this planned position? Existing staff will remain unchanged.'))return;const r=await db.from('ec_org_positions').delete().eq('id',del.dataset.positionDelete).eq('org_type',type).eq('org_id',id);if(r.error)alert(r.error.message);else await renderOrganisationChart(type,id);return;}
   const r=await db.from('ec_org_positions').select('*').eq('id',recruit.dataset.positionRecruit).eq('org_type',type).eq('org_id',id).maybeSingle();if(!r.data)return;
