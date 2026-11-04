@@ -1614,21 +1614,21 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   }
   // Editable map uses the same positions, vacancies and departments as the
   // existing organisation chart; it never creates a second reporting model.
-  {
+  if(!publicView){
    const chartView=root.querySelector('.ec-org-chart-hierarchy');
    if(chartView){
     const keyName='ec-org-map:'+type+':'+id;
-    const saved=publicView?{}:JSON.parse(localStorage.getItem(keyName)||'{}');
+    const saved=JSON.parse(localStorage.getItem(keyName)||'{}');
     const profileUsers=[...new Set((staff.data||[]).map(x=>x.user_id).filter(Boolean))];
     const profileResult=profileUsers.length?await db.from('ec_career_profiles').select('user_id,display_name,photo_url').in('user_id',profileUsers):{data:[]};
     const profileNames=new Map((profileResult.data||[]).map(p=>[p.user_id,p.display_name]));
     const profilePhotos=new Map((profileResult.data||[]).map(p=>[p.user_id,p.photo_url]));
-    if(!publicView)document.getElementById('ecStaffConnections')?.classList.add('ec-map-focused');
-    const map=document.createElement('section');map.className='ec-org-map';map.dataset.orgType=type;map.dataset.orgId=id;if(publicView)map.classList.add('ec-org-map-public');
+    document.getElementById('ecStaffConnections')?.classList.add('ec-map-focused');
+    const map=document.createElement('section');map.className='ec-org-map';map.dataset.orgType=type;map.dataset.orgId=id;
     map.innerHTML='<div class="ec-org-map-toolbar"><strong>Organisation chart</strong><button type="button" class="ec-map-edit-toggle" data-map-mode>✎ Edit map</button><button type="button" data-map-add>＋ Add role</button><button type="button" class="ec-map-invite-button" data-map-invite title="Invite someone to a role" aria-label="Invite a team member">♙ Invite</button><button type="button" data-map-staff title="Staff records and departures"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg> Staff</button><button type="button" data-map-department>＋ Add department</button><button type="button" data-map-manage-departments>⚙ Manage departments</button><span>View the reporting structure. Enable Edit mode to arrange cards on the grid.</span></div><div class="ec-org-map-canvas"><div class="ec-org-map-departments" aria-hidden="true"></div><svg class="ec-org-map-lines" aria-hidden="true"></svg><div class="ec-org-map-cards"></div></div><div class="ec-org-map-menu" hidden></div>';
     chartView.before(map);
     // All management controls are modal; the map is the sole visible chart workspace.
-    if(!publicView)for(const child of [...root.children])if(child!==map)child.classList.add('ec-map-background-panel');
+    for(const child of [...root.children])if(child!==map)child.classList.add('ec-map-background-panel');
     const canvas=map.querySelector('.ec-org-map-canvas'),layer=map.querySelector('.ec-org-map-cards'),svg=map.querySelector('svg'),menu=map.querySelector('.ec-org-map-menu');
     const deptName=new Map((depts.data||[]).map(d=>[d.id,d.name]));
     const departmentLayer=map.querySelector('.ec-org-map-departments');
@@ -1789,7 +1789,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       if(a&&b)makeLine(a,b);
      }
     };
-    const persist=()=>{const state={...saved};for(const node of layer.querySelectorAll('.ec-org-map-card'))state[node.dataset.mapId||'staff:'+node.dataset.staffId]={x:parseFloat(node.style.left),y:parseFloat(node.style.top)};for(const dept of departmentLayer.querySelectorAll('.ec-org-map-department-box'))if(!layer.querySelector('[data-department-id="'+CSS.escape(dept.dataset.departmentId)+'"]'))state['department:'+dept.dataset.departmentId]={x:parseFloat(dept.style.left),y:parseFloat(dept.style.top)};Object.assign(saved,state);if(!publicView)localStorage.setItem(keyName,JSON.stringify(state));};
+    const persist=()=>{const state={...saved};for(const node of layer.querySelectorAll('.ec-org-map-card'))state[node.dataset.mapId||'staff:'+node.dataset.staffId]={x:parseFloat(node.style.left),y:parseFloat(node.style.top)};for(const dept of departmentLayer.querySelectorAll('.ec-org-map-department-box'))if(!layer.querySelector('[data-department-id="'+CSS.escape(dept.dataset.departmentId)+'"]'))state['department:'+dept.dataset.departmentId]={x:parseFloat(dept.style.left),y:parseFloat(dept.style.top)};Object.assign(saved,state);localStorage.setItem(keyName,JSON.stringify(state));};
     let drag=null,connectFrom=null,editMode=false;
     const modeKey=keyName+':editing';
     departmentLayer.addEventListener('click',e=>{if(!editMode||departmentDrag)return;const title=e.target.closest('.ec-org-map-department-box>strong');if(!title)return;const dialog=root.querySelector('.ec-department-manager:not(.ec-position-manager)');if(dialog)dialog.hidden=false;});
@@ -1841,7 +1841,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      const r=await db.from('ec_org_positions').update({reports_to_position_id:parent.id,reports_to_department_id:null}).eq('id',child.id).eq('org_type',type).eq('org_id',id);
      if(r.error)alert(r.error.message);else await renderOrganisationChart(type,id);
     };
-    const setMode=enabled=>{enabled=publicView?false:enabled;editMode=enabled;sessionStorage.setItem(modeKey,enabled?'1':'0');map.classList.toggle('is-editing',enabled);map.querySelector('[data-map-mode]').textContent=enabled?'✓ Finish editing':'✎ Edit map';map.querySelector('.ec-org-map-toolbar span').textContent=enabled?'Drag roles to grid cells, or select a role to edit reporting.':'Select a role to view its details.';};
+    const setMode=enabled=>{editMode=enabled;sessionStorage.setItem(modeKey,enabled?'1':'0');map.classList.toggle('is-editing',enabled);map.querySelector('[data-map-mode]').textContent=enabled?'✓ Finish editing':'✎ Edit map';map.querySelector('.ec-org-map-toolbar span').textContent=enabled?'Drag roles to grid cells, or select a role to edit reporting.':'Select a role to view its details.';};
     layer.addEventListener('pointerdown',e=>{
      const node=e.target.closest('.ec-org-map-card');if(!editMode||!node||e.button!==0)return;
      const r=canvas.getBoundingClientRect();drag={node,startX:e.clientX,startY:e.clientY,x:parseFloat(node.style.left),y:parseFloat(node.style.top),moved:false};
@@ -1896,18 +1896,18 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
       const target=panel?.querySelector('[data-position-'+(action==='remove'?'delete':action==='recruit'?'recruit':'edit')+'="'+CSS.escape(roleId)+'"]');
       if(target){panel.hidden=false;target.click();}return;
      }
-     if(!publicView&&e.target.closest('[data-map-add]')){const dialog=root.querySelector('.ec-position-manager');if(dialog){dialog.hidden=false;dialog.querySelector('details.ec-position-add')?.setAttribute('open','');}}
-     if(!publicView&&e.target.closest('[data-map-department],[data-map-manage-departments]')){const dialog=root.querySelector('.ec-department-manager:not(.ec-position-manager)');if(dialog){dialog.hidden=false;dialog.querySelector('[data-dept-tab="manage"]')?.click();dialog.querySelector('[data-department-create] input')?.focus();}}
-     if(!publicView&&e.target.closest('[data-map-invite]'))window.ecOpenMapStaffDialog?.('invite',type,id);
-     if(!publicView&&e.target.closest('[data-map-staff]'))window.ecOpenMapStaffDialog?.('career',type,id);
-     if(!publicView&&e.target.closest('[data-map-mode]'))setMode(!editMode);
+     if(e.target.closest('[data-map-add]')){const dialog=root.querySelector('.ec-position-manager');if(dialog){dialog.hidden=false;dialog.querySelector('details.ec-position-add')?.setAttribute('open','');}}
+     if(e.target.closest('[data-map-department],[data-map-manage-departments]')){const dialog=root.querySelector('.ec-department-manager:not(.ec-position-manager)');if(dialog){dialog.hidden=false;dialog.querySelector('[data-dept-tab="manage"]')?.click();dialog.querySelector('[data-department-create] input')?.focus();}}
+     if(e.target.closest('[data-map-invite]'))window.ecOpenMapStaffDialog?.('invite',type,id);
+     if(e.target.closest('[data-map-staff]'))window.ecOpenMapStaffDialog?.('career',type,id);
+     if(e.target.closest('[data-map-mode]'))setMode(!editMode);
     });
     // The map is the only visible organisation chart. Editing is a mode,
     // not a second chart. Existing hierarchy remains available in DOM for
     // staff actions and data compatibility, but is not rendered.
     chartView.hidden=true;
     map.hidden=false;
-    setMode(!publicView&&sessionStorage.getItem(modeKey)==='1');
+    setMode(sessionStorage.getItem(modeKey)==='1');
     requestAnimationFrame(redraw);
 
    }
