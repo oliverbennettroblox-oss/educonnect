@@ -1663,7 +1663,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    const chartView=root.querySelector('.ec-org-chart-hierarchy');
    if(chartView){
     const keyName='ec-org-map:'+type+':'+id;
-    const saved=JSON.parse(localStorage.getItem(keyName)||'{}');
+    let saved={};try{saved=JSON.parse(localStorage.getItem(keyName)||'{}')||{};}catch(error){console.warn('Invalid chart layout, using defaults',error);}
     const profileUsers=[...new Set((staff.data||[]).map(x=>x.user_id).filter(Boolean))];
     const profileResult=profileUsers.length?await db.from('ec_career_profiles').select('user_id,display_name,photo_url').in('user_id',profileUsers):{data:[]};
     const profileNames=new Map((profileResult.data||[]).map(p=>[p.user_id,p.display_name]));
@@ -1678,6 +1678,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     // Keep the legacy DOM solely for existing staff and position actions.
     // It must not participate in layout: hiding individual hierarchy views
     // was insufficient because their parent wrappers still occupied space.
+    root.querySelectorAll(':scope > .ec-org-legacy-data').forEach(old=>{while(old.firstChild)root.appendChild(old.firstChild);old.remove();});
     const legacy=document.createElement('div');
     legacy.className='ec-org-legacy-data';
     legacy.hidden=true;
@@ -1688,7 +1689,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     }
     root.prepend(legacy);
     root.prepend(map);
-    const canvas=map.querySelector('.ec-org-map-canvas'),layer=map.querySelector('.ec-org-map-cards'),svg=map.querySelector('svg'),menu=map.querySelector('.ec-org-map-menu');
+    const canvas=map.querySelector('.ec-org-map-canvas'),layer=map.querySelector('.ec-org-map-cards'),svg=map.querySelector('.ec-org-map-lines'),menu=map.querySelector('.ec-org-map-menu');
     const deptName=new Map((depts.data||[]).map(d=>[d.id,d.name]));
     const departmentLayer=map.querySelector('.ec-org-map-departments');
     const roleById=new Map((positions.data||[]).map(p=>[p.id,p]));
@@ -1735,7 +1736,8 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     const redraw=()=>{
      snapCardSizes();
      svg.replaceChildren();
-     const mapWidth=Math.max(1600,layer.scrollWidth),mapHeight=Math.max(1200,layer.scrollHeight);
+     const cards=[...layer.querySelectorAll('.ec-org-map-card')];
+     const mapWidth=Math.max(1600,...cards.map(n=>parseFloat(n.style.left)+n.offsetWidth+100)),mapHeight=Math.max(1200,...cards.map(n=>parseFloat(n.style.top)+n.offsetHeight+100));
      const stage=map.querySelector('.ec-org-map-stage');
      if(!stage)throw new Error('Organisation map stage missing: cannot align cards and reporting lines');
      stage.style.width=mapWidth+'px';stage.style.height=mapHeight+'px';
