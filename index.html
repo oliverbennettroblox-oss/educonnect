@@ -1395,7 +1395,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
  const key=x=>[x.department_id,String(x.title||'').trim().toLowerCase(),Number(x.rank_code)].join('|');
  const card=(p,count,v)=>'<div class="ec-hierarchy-person ec-hierarchy-profile-card ec-position-vacant"><div class="ec-hierarchy-profile-button"><span class="ec-hierarchy-avatar ec-hierarchy-avatar-placeholder" aria-hidden="true">+</span><span class="ec-hierarchy-person-info"><strong>'+esc(p.title)+(count>1?' ×'+count:'')+'</strong><small>'+(v?'Applications open':'Position unfilled')+'</small></span></div>'+(v?'<button class="button light ec-position-action" type="button" data-position-apply="'+esc(v.id)+'">Apply now</button>':'')+'</div>';
  async function enhance(type,id,publicView){
-  const root=publicView?document.querySelector('#ecSharedOrgChart #ecOrgStaffChart'):document.getElementById('ecOrgStaffChart');if(!root)return;
+  const root=publicView?document.querySelector('#ecSharedOrgChart #ecOrgStaffChart'):document.querySelector('#ecStaffConnections #ecOrgStaffChart');if(!root)return;
   // Preserve unsaved edits when the chart is refreshed by another UI action.
   const oldEditor=!publicView?root.querySelector('.ec-position-manager [data-position-create]'):null;
   const editingDraft=oldEditor&&oldEditor.dataset.positionEdit?{
@@ -1415,6 +1415,8 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   ]);
   if(positions.error||staff.error||vacancies.error||depts.error){console.warn('Planned positions could not load',positions.error||staff.error||vacancies.error||depts.error);return;}
   if(!root.isConnected)return;
+  // Re-entrant rendering must never leave two map instances in the same root.
+  root.querySelectorAll(':scope > .ec-org-map').forEach(old=>old.remove());
   // Do not destroy an actively edited form on a background chart refresh.
   const existingPanel=root.querySelector('.ec-position-manager');
   const keepEditor=!!(existingPanel?.querySelector('[data-position-edit]')&&existingPanel.querySelector('[data-position-create]')?.dataset.positionEdit);
@@ -1443,7 +1445,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   // Use SVG geometry so only explicitly configured relationships get lines.
   const reportingPositions=positions.data||[];
   const chart=root.querySelector('.ec-org-chart-hierarchy');
-  if(chart&&reportingPositions.some(p=>p.reports_to_position_id||p.reports_to_department_id)){
+  if(chart&&!root.querySelector(':scope > .ec-org-map')&&reportingPositions.some(p=>p.reports_to_position_id||p.reports_to_department_id)){
    chart.classList.add('ec-reporting-integrated');
    const deptNodes=[...chart.querySelectorAll('.ec-hierarchy-node')];
    const findDept=deptId=>{
@@ -1508,6 +1510,8 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     }
    };
    const draw=()=>{
+    // The old hierarchy SVG must not redraw behind the new map.
+    if(root.querySelector(':scope > .ec-org-map'))return;
     align();
     svg.replaceChildren();
     const base=chart.getBoundingClientRect();
@@ -1639,7 +1643,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
    const chartView=root.querySelector('.ec-org-chart-hierarchy');
    if(chartView){
     const keyName='ec-org-map:'+type+':'+id;
-    const saved=publicView?{}:JSON.parse(localStorage.getItem(keyName)||'{}');
+    const saved=JSON.parse(localStorage.getItem(keyName)||'{}');
     const profileUsers=[...new Set((staff.data||[]).map(x=>x.user_id).filter(Boolean))];
     const profileResult=profileUsers.length?await db.from('ec_career_profiles').select('user_id,display_name,photo_url').in('user_id',profileUsers):{data:[]};
     const profileNames=new Map((profileResult.data||[]).map(p=>[p.user_id,p.display_name]));
@@ -1650,6 +1654,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
     // Place the map at the start of the chart root, not beside the legacy
     // hierarchy inside the old scroll container. The old chart otherwise
     // creates a second large viewport above the new map.
+    root.querySelectorAll(':scope > .ec-org-map').forEach(old=>old.remove());
     root.prepend(map);
     // All management controls are modal; the map is the sole visible chart workspace.
     for(const child of [...root.children])if(child!==map)child.classList.add('ec-map-background-panel');
