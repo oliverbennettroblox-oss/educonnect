@@ -1737,6 +1737,7 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
      svg.replaceChildren();
      const mapWidth=Math.max(1600,layer.scrollWidth),mapHeight=Math.max(1200,layer.scrollHeight);
      const stage=map.querySelector('.ec-org-map-stage');
+     if(!stage)throw new Error('Organisation map stage missing: cannot align cards and reporting lines');
      stage.style.width=mapWidth+'px';stage.style.height=mapHeight+'px';
      svg.setAttribute('viewBox','0 0 '+mapWidth+' '+mapHeight);
      svg.setAttribute('width',mapWidth);svg.setAttribute('height',mapHeight);
@@ -2008,7 +2009,11 @@ const ecNotificationObserver=new MutationObserver(()=>{if(document.getElementByI
   const close=document.createElement('button');close.type='button';close.textContent='Close';close.className='button light';close.addEventListener('click',()=>panel.hidden=true);panel.prepend(close);
   root.querySelectorAll('[data-map-add]').forEach(b=>b.addEventListener('click',()=>{panel.hidden=false;panel.querySelector('details')?.setAttribute('open','');}));
   const departmentManager=root.querySelector('.ec-department-manager:not(.ec-position-manager)');
-  if(departmentManager){departmentManager.classList.add('ec-position-dialog','ec-department-dialog');departmentManager.hidden=true;const closeDept=document.createElement('button');closeDept.type='button';closeDept.className='button light';closeDept.textContent='Close';closeDept.addEventListener('click',()=>departmentManager.hidden=true);departmentManager.prepend(closeDept);
+  if(departmentManager){
+   // A dialog inside the hidden legacy container cannot be displayed, even with z-index.
+   // Portal it to the visible chart root before applying dialog styles.
+   root.appendChild(departmentManager);
+   departmentManager.classList.add('ec-position-dialog','ec-department-dialog');departmentManager.hidden=true;const closeDept=document.createElement('button');closeDept.type='button';closeDept.className='button light';closeDept.textContent='Close';closeDept.addEventListener('click',()=>departmentManager.hidden=true);departmentManager.prepend(closeDept);
    // Staff department selectors remain accessible from the department management popup.
    const assignments=[...root.querySelectorAll('[data-department-assign]')];
    if(assignments.length){
